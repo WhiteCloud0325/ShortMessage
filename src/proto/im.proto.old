@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+package im;
+
+enum Status {
+    OK = 0;
+    ERR = -1;
+}
+
+//User 操作包括注册、登录
+
+message UserRequest {
+    string number = 1;         // 用户number, required
+    string password = 2;    // 用户密码, required
+    string nickname = 3;    // 用户昵称, required
+    string ip = 4;          //ip,required
+    int64 timestamp = 5;    // 时间戳,required
+}
+
+message UserResponse {
+    int32 status = 1;       //状态码，required
+    int64 uid = 2;
+    string err_msg = 3;     //
+}
+
+message UserLogout {
+    int64_t uid = 1;
+    string ip = 2;//
+}
+
+
+
+
+//好友
+message Friend {
+    int64 fid = 1;
+    string fnickname  = 2; //好友昵称, optional 只有response里有
+}
+
+// 好友操作
+
+//操作类型类型
+enum CtrlFriendType {
+    ListUserFriend = 0;     //获取好友列表
+    FindUser = 1;   //查找用户 
+    AddFriend = 2;          //添加好友
+    DeleteFriend = 3;       //删除好友
+}
+
+// 好友操作
+message CtrlFriendRequest {
+    int64 uid = 1;     //用户id, required
+    int32 type = 2;     //操作类型 CtrlFriendType, required
+    int64 fid = 3;     //好友id, optional, 查找、添加或删除需要, 
+    int64 timestamp = 4;    //时间戳, required
+}
+
+message CtrlFriendResponse {
+    int32 status = 1;               // 状态, required
+    int32 err_code = 2;             // 错误码, required
+    string err_msg = 3;             // 消息, required
+    repeated Friend friends = 4;    // 好友列表, optional, 获取好友列表时需要
+}
+
+//群组控制
+//群组类型
+enum CtrlGroupType {
+    CreateGroup = 0;    //创建群组
+    AddGroupMember = 1; //添加群组成员
+    DeleteGroupMember = 2;  //删除群组成员
+    DeleteGroup = 3;        //解散群组
+    ExitGroup = 4;          //退出群组
+    ModifyGroupName = 5;    //修改群组名字
+}
+
+message CtrlGroupRequest {
+    int64 uid = 1;         //user id, required
+    int32 type = 2;         //操作类型, required
+    int64 gid = 3;         //用户组id, required
+    string groupname = 4;   //用户组名字, optional 只有CreateGroup用到
+    int64 msgid = 5;         //消息服务器对消息的编号, optional 只有push给用户时用到
+    repeated Friend friends = 6;    //好友列表，optional, 只有AddGroupMember和DeleteGroupMember用到
+}
+
+message CtrlGroupResponse {
+    int64 msgid = 1;
+    int64 timestamp = 2;
+    int64 gid = 3;
+}
+
+// 聊天
+message MessageItem {
+    int64 fromid = 1;  //发送者, required
+    int64 toid = 2;    //接收者, 用户或群组, required
+    int32 type =3;      //消息类型1个人，2 群组
+    string content = 4; //消息内容
+    int64  msgid = 5;   //消息服务器对消息的编号(针对每个用户独立的一份消息), optional,只有push的时候有
+    int64 timestamp = 6;//收到群聊消息的时间, optional, 只有push的时候有
+}
+
+message MessageResponse {
+    int64 msgid = 1;    
+    int64 timestamp =2; //optional,只有Send时有
+}
+
+
+
+
+
