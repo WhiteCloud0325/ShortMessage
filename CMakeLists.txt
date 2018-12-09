@@ -71,9 +71,9 @@ include_directories(
     ${LIBBOOST_MODULE_INCLUDE}
     )
 
-add_executable(test ${SERVICE_SOURCES})
+add_executable(server ${SERVICE_SOURCES})
 
-target_link_libraries(test
+target_link_libraries(server
     ${LIBCONFIG_MODULE_LIB}
     ${LIBZDB_MODULE_LIB}
     ${LIBMYSQL_MODULE_LIB}

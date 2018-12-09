@@ -57,9 +57,9 @@ include_directories(
     ${LIBBOOST_MODULE_INCLUDE}
     )
 
-add_executable(test ${SERVICE_SOURCES})
+add_executable(client ${SERVICE_SOURCES})
 
-target_link_libraries(test
+target_link_libraries(client
     ${LIBCONFIG_MODULE_LIB}
     ${LIBLOG4CPLUS_MODULE_LIB}
     ${LIBPROTOBUF_MODULE_LIB}
