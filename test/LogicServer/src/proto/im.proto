@@ -1,0 +1,115 @@
+syntax = "proto3";
+
+package im;
+
+
+enum MSG{
+    START = 0;
+    REGISTER_REQUEST = 10001;
+    REGISTER_RESPONSE = 10011;
+    LOGIN_REQUEST = 10002;
+    LOGIN_RESPONSE = 10012;
+    LOGOUT_REQUEST = 10003;
+
+    FRIEND_LIST_REQUEST = 20001;
+    FRIEND_LIST_RESPONSE = 20011;
+    FRIEND_FIND_REQUEST = 20002;
+    FRIEND_FIND_RESPONSE = 20012;
+    FRIEND_ADD_REQUEST = 20003;
+    FRIEND_ADD_RESPONSE = 20013;
+    FRIEND_DELETE_REQUEST = 20004;
+    FRIEND_DELETE_RESPONSE = 20014;
+
+    GROUP_CREATE_REQUEST = 30001;
+    GROUP_CRAETE_RESPONSE = 30011;
+    GROUP_ADDMEMBER_REQUEST = 30002;
+    GROUP_ADDMEMBER_RESPONSE = 30012;
+    GROUP_DELETEMEMBER_REQUEST = 30003;
+    GROUP_DELETEMEMBER_RESPONSE = 30013;
+    GROUP_DELETE_REQUEST = 30004;
+    GROUP_DELETE_RESPONSE = 30014;
+    GROUP_EXIT_REQUESET = 30005;
+    GROUP_EXIT_RESPONSE = 30015;
+
+    MESSAGE_FRIEND_SEND_REQUEST = 40001;
+    MESSAGE_FRIEND_RESPONSE = 40011;
+    MESSAGE_GROUP_SEND_REQUEST = 40002;
+    MESSAGE_GROUP_SEND_RESPONSE = 40012;
+    MESSAGE_FRIEND_NOTIFY_REQUEST = 40003;
+    MESSAGE_FRIEND_NOTIFY_RESPONSE = 40013;
+    MESSAGE_GROUP_NOTIFY_REQUEST = 40004;
+    MESSAGE_GROUP_NOTIFY_RESPONSE = 40014;
+}
+
+enum Status {
+    OK = 0;
+    ERR = 1;
+}
+
+// User Regiseter
+
+message UserRegisterRequest{
+    string number = 1;         // 用户number, required
+    string password = 2;    // 用户密码, required
+    string nickname = 3;    // 用户昵称, required
+    string ip = 4;          //ip,required
+}
+
+
+message UserRegisterResponse {
+    int32 status = 1;       //状态码，required
+    string err_msg = 2;     //
+}
+
+// User Login
+message UserLoginRequest {
+    string number = 1;         // 用户number, required
+    string password = 2;    // 用户密码, required
+    string ip = 3;          //ip,required
+}
+
+message UserLoginResponse {
+    int32 status = 1;       //状态码，required
+    int64 uid = 2;
+    string err_msg = 3;     //
+}
+
+
+// User Logout
+message UserLogoutRequest {
+    int64 uid = 1;
+    string ip = 2;
+}
+
+//好友
+message Friend {
+    int64 fid = 1;
+    string fnickname  = 2; //好友昵称, optional 只有response里有
+}
+
+// 好友操作
+message CtrlFriendRequest {
+    int64 uid = 1;     //用户id, required
+    int64 fid = 2;     //好友id, optional, 查找、添加或删除需要, 
+}
+
+message CtrlFriendResponse {
+    int32 status = 1;               // 状态, required
+    string err_msg = 2;             // 消息, required
+    repeated Friend friends = 3;    // 好友列表, optional, 获取好友列表时需要
+}
+
+// 聊天
+message MessageItem {
+    int64 fromid = 1;  //发送者, required
+    int64 toid = 2;    //接收者, 用户或群组, required
+    string content = 3; //消息内容
+    int64  msgid = 4;   //消息服务器对消息的编号(针对每个用户独立的一份消息), optional,只有push的时候有
+    int64 timestamp = 5;//收到群聊消息的时间, optional, 只有push的时候有
+}
+
+message MessageResponse {
+    int64 msgid = 1;    
+    int64 timestamp =2; //optional,只有Send时有
+}
+
