@@ -38,10 +38,12 @@ int main() {
         return -1;
     }
     boost::thread run_thread(boost::bind(&Controller::Run, &controller)); 
+    boost::thread qos_thread(boost::bind(&QosSendDaemon::Start, &(controller.qos_send_daemon_));
     while(!stopped) {
         usleep(1000000);
     }
     controller.Stop();
     run_thread.join();
+    qos_thread.join();
     return 0;
 }

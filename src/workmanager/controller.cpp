@@ -99,4 +99,5 @@ void Controller::Run() {
 void Controller::Stop() {
     stop_ = true;
     server_->stop();
+    qos_send_daemon_.Stop();
 }

@@ -33,3 +33,12 @@ void MobileManager::ProcessC2SMessage(const std::string &request) {
         SendHelper::GetInstance()->SendMessageData(p);
     }
 }
+
+void MobileManager::ProcessACK(const std::string &ack) {
+    MessageResponse response;
+    response.ParseFromString(ack);
+    int64_t msg_id = response.msgid();
+    Connection_T conn = database_->GetConnection();
+    database_->SetStateMessage(conn, msg_id);
+    qoe_send_daemon_->Remove(msg_id);
+}

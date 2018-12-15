@@ -10,7 +10,7 @@ public:
     ~MobileManager(){}
     bool Init(Database *database, QosSendDaemon *qos_send_daemon);
     void ProcessC2SMessage(const std::string &request);
-    void ProcessACK();
+    void ProcessACK(const std::string &ack);
 
 private:
     Database * database_;
