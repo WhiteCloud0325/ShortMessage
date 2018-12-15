@@ -4,11 +4,14 @@
 
 class MessageManager {
 public:
-    MessageManager(): database_(NULL) {}
+    MessageManager(): database_(NULL),qos_send_daemon_(NULL) {}
     ~MessageManager() {}
-    bool Init(Database *database);
+    bool Init(Database *database, QosSendDaemon *qos_send_daemon);
+    void ProcessC2SMessage(const std::string &request);
+    void ProcessACK(const std::string &ack);
 private:
     Database *database_;
+    QosSendDaemon *qos_send_daemon_;
 };
 
 #endif /* define message_manager_h_ */
