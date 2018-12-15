@@ -17,9 +17,9 @@ public:
     bool Init(libconfig::Config &config);
     void Run();
     void Stop();
-private:
+public:
     UserManager user_manager_;
-    MobileManager MobileManager_;
+    MobileManager mobile_manager_;
     QosSendDaemon qos_send_daemon_;
 private:
     boost::shared_ptr<apache::thrift::server::TServer>  server_;

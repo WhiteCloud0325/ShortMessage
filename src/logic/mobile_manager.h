@@ -7,7 +7,7 @@
 class MobileManager {
 public:
     MobileManager(): database_(NULL){}
-    ~MobileManager():{}
+    ~MobileManager(){}
     bool Init(Database *database, QosSendDaemon *qos_send_daemon);
     void ProcessC2SMessage(const std::string &request);
     void ProcessACK();

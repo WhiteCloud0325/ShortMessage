@@ -348,7 +348,7 @@ int Database::SelectSateCover(Connection_T conn, const int64_t &user_id) {
 int64_t Database::InsertMessage(Connection_T conn, const int64_t &from_id, const int64_t &to_id, const std::string &content, const time_t &timestamp) {
     int64_t msg_id = -1;
     TRY {
-        PreparedStatement_T p = Connection_prepareStatement("INSERT INTO message_store(from_id, to_id, content, time) VALUES(?, ?, ?, ?)");
+        PreparedStatement_T p = Connection_prepareStatement(conn, "INSERT INTO message_store(from_id, to_id, content, time) VALUES(?, ?, ?, ?)");
         PreparedStatement_setLLong(p, 1, (long long) from_id);
         PreparedStatement_setLLong(p, 2, (long long) to_id);
         PreparedStatement_setString(p, 3, content.c_str());
@@ -357,7 +357,7 @@ int64_t Database::InsertMessage(Connection_T conn, const int64_t &from_id, const
         msg_id = Connection_lastRowId(conn);
     }
     CATCH(SQLException) {
-        LOG_INFO("Database InsertMessage Failed: from_id=%lld||to_id=%lld", message.from_id, message.to_id);
+        LOG_INFO("Database InsertMessage Failed: from_id=%lld||to_id=%lld", from_id, to_id);
     }
     END_TRY;
     return msg_id;
@@ -393,8 +393,8 @@ void Database::GetOfflineMessage(Connection_T conn, const int64_t &to_id, int li
 
 bool Database::SetStateMessage(Connection_T conn, const int64_t &msg_id) {
     TRY {
-        PreparedStatement_T p = Connection_prepareStatement("Update message_store status = 1 WHERE msg_id = ?");
-        PreparedStatement_setLLong((long long) msg_id);
+        PreparedStatement_T p = Connection_prepareStatement(conn, "Update message_store status = 1 WHERE msg_id = ?");
+        PreparedStatement_setLLong(p, 1, (long long) msg_id);
         PreparedStatement_execute(p);
     }
     CATCH(SQLException) {
@@ -403,10 +403,10 @@ bool Database::SetStateMessage(Connection_T conn, const int64_t &msg_id) {
     END_TRY;
 }
 
-bool Database::UserOnline(Connection_T conn, const int64_t user_id) {
-    TRT{
-        PreparedStatement_T p = Connection_prepareStatement("SELECT state FROM t_user WHERE user_id = ?");
-        PreparedStatement_setLLong((long long) user_id);
+bool Database::UserOnline(Connection_T conn, const int64_t &user_id) {
+    TRY{
+        PreparedStatement_T p = Connection_prepareStatement(conn, "SELECT state FROM t_user WHERE user_id = ?");
+        PreparedStatement_setLLong(p, 1, (long long) user_id);
         ResultSet_T r = PreparedStatement_executeQuery(p);
         if (ResultSet_next(r)) {
             bool state = ResultSet_getInt(r, 1);

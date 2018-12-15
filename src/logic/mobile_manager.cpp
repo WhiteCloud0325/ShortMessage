@@ -1,4 +1,5 @@
 #include "logic/mobile_manager.h"
+#include "workmanager/send_helper.h"
 #include "proto/im.pb.h"
 
 using namespace im;
@@ -9,14 +10,14 @@ bool MobileManager::Init(Database *database, QosSendDaemon *qos_send_daemon) {
     return true;
 }
 
-void MobileManager::ProcessC2sMessage(const std::string &request) {
+void MobileManager::ProcessC2SMessage(const std::string &request) {
     im::MessageItem message_item;
-    if (!message_item.ParseFromString(reqeust)) return;
+    if (!message_item.ParseFromString(request)) return;
     int64_t from_id = message_item.fromid();
     int64_t to_id = message_item.toid();
     std::string content = message_item.content();
     time_t timestamp = message_item.timestamp();
-    Connetion_T conn = database_->GetConnection();
+    Connection_T conn = database_->GetConnection();
     int64_t msg_id = database_->InsertMessage(conn, from_id, to_id, content, timestamp);
     if (msg_id < 0) {
         return;
@@ -28,7 +29,7 @@ void MobileManager::ProcessC2sMessage(const std::string &request) {
         p.uid = to_id;
         p.data_content = content;
         p.timestamp = time(NULL);
-        qos_send_daemon_.Put(p);
+        qos_send_daemon_->Put(p);
         SendHelper::GetInstance()->SendMessageData(p);
     }
 }
