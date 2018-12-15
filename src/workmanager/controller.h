@@ -7,7 +7,8 @@
 #include "tools/logger.h"
 #include "tools/database.h"
 #include "logic/user_manager.h"
-
+#include "logic/mobile_manager.h"
+#include "tools/qos_send_daemon.h"
 
 class Controller {
 public:
@@ -16,8 +17,10 @@ public:
     bool Init(libconfig::Config &config);
     void Run();
     void Stop();
-public:  
+private:
     UserManager user_manager_;
+    MobileManager MobileManager_;
+    QosSendDaemon qos_send_daemon_;
 private:
     boost::shared_ptr<apache::thrift::server::TServer>  server_;
     Database database_;

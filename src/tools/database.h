@@ -4,6 +4,10 @@
 #include <zdb.h>
 #include <libconfig.h++>
 #include <stdint.h>
+#include <string>
+#include <vector>
+#include <time.h>
+#include "tools/protocol.h"
 enum RegisterResultCode {
      REGISTER_SUCCESS = 0, //注册成功
      REGISTER_ERROR = 1,     //未知错误
@@ -36,6 +40,13 @@ public:
     void LogoutUser(Connection_T conn, const int64_t &user_id);
     bool AddFriend(Connection_T conn, const int64_t &user_id, const int64_t &friend_id);
     int QueryFriend(Connection_T conn, const int64_t &user_id, const int64_t &friend_id);
+    bool SetSateCover(Connection_T conn, const int64_t &user_id, const std::vector<int> &ids);
+    bool UnsetSateCover(Connection_T conn, const int64_t &user_id, const std::vector<int> &ids);
+    int  SelectSateCover(Connection_T conn, const int64_t &user_id);
+    int64_t InsertMessage(Connection_T conn, const int64_t &from_id, const int64_t &to_id, const std::string &content, const time_t &timestamp);
+    void GetOfflineMessage(Connection_T conn, const int64_t &to_id, int limit_num);
+    bool SetStateMessage(Connection_T conn, const int64_t &msg_id);
+    bool UserOnline(Connection_T conn, const int64_t &user_id);
 private:
     std::string host_name_;
     std::string user_;

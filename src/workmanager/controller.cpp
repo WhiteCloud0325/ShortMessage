@@ -9,6 +9,7 @@
 #include "workmanager/controller.h"
 #include "tools/logger.h"
 #include "workmanager/LogicInterfaceHandler.h"
+#include "workmanager/send_helper.h"
 
 using namespace im;
 using namespace apache::thrift;
@@ -34,6 +35,18 @@ bool Controller::Init(libconfig::Config &config) {
         if (!database_.Init(db_setting)) {
             return false;
         }
+
+        libconfig::Setting &send_helper_setting = config.lookup("SendHelper");
+        if (! SendHelper::GetInstance()->Init(send_helper_setting)) {
+            LOG_INFO("SendHelper Init Failed");
+            return false;
+        }
+
+        libconfig::Setting &qos_setting = config.lookup("Qos");
+        if (!qos_send_daemon_.Init(qos_setting)) {
+            LOG_INFO("QosSendDaemon Init Failed");
+            return false;
+        }
         
         libconfig::Setting &server_setting = config.lookup("ThriftServer");
         if (!server_setting.lookupValue("port", port_)) {
@@ -57,6 +70,7 @@ bool Controller::Init(libconfig::Config &config) {
         return false;
     }
     user_manager_.Init(&database_);
+    mobile_manager_.Init(&database_, &qos_send_daemon_);
     LOG_INFO("Controller Init Success");
     return true;
 }
