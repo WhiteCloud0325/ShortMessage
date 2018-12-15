@@ -40,5 +40,5 @@ void MobileManager::ProcessACK(const std::string &ack) {
     int64_t msg_id = response.msgid();
     Connection_T conn = database_->GetConnection();
     database_->SetStateMessage(conn, msg_id);
-    qoe_send_daemon_->Remove(msg_id);
+    qos_send_daemon_->Remove(msg_id);
 }
