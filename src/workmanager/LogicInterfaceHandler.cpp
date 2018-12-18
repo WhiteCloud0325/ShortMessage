@@ -67,18 +67,18 @@ void LogicInterfaceHandler::SendMessage(const Request& message) {
         case GROUP_EXIT_RESPONSE: 
             break;
         case MESSAGE_FRIEND_SEND_REQUEST: 
+            controller_->message_manager_.ProcessC2SMessage(request);
             break;
         case MESSAGE_FRIEND_RESPONSE: 
+            controller_->message_manager_.ProcessACK(request);
             break;
         case MESSAGE_GROUP_SEND_REQUEST: 
             break;
         case MESSAGE_GROUP_SEND_RESPONSE: 
             break;
         case MESSAGE_FRIEND_NOTIFY_REQUEST: 
-            controller_->message_manager_->ProcessC2SMessage(request);
             break;
         case MESSAGE_FRIEND_NOTIFY_RESPONSE: 
-            controller_->message_manager_->ProcessACK(request);
             break;
         case MESSAGE_GROUP_NOTIFY_REQUEST:
             break;

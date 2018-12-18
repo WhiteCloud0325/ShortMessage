@@ -8,6 +8,7 @@
 #include "tools/database.h"
 #include "logic/user_manager.h"
 #include "logic/mobile_manager.h"
+#include "logic/message_manager.h"
 #include "tools/qos_send_daemon.h"
 
 class Controller {

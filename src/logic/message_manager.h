@@ -1,6 +1,7 @@
 #ifndef message_manager_h_
 #define message_manager_h_
 #include "tools/database.h"
+#include "tools/qos_send_daemon.h"
 
 class MessageManager {
 public:

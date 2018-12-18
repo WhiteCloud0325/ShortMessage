@@ -393,7 +393,7 @@ void Database::GetOfflineMessage(Connection_T conn, const int64_t &to_id, int li
 
 bool Database::SetStateMessage(Connection_T conn, const int64_t &msg_id) {
     TRY {
-        PreparedStatement_T p = Connection_prepareStatement(conn, "Update message_store status = 1 WHERE msg_id = ?");
+        PreparedStatement_T p = Connection_prepareStatement(conn, "Update message_store SET status = 1 WHERE msg_id = ?");
         PreparedStatement_setLLong(p, 1, (long long) msg_id);
         PreparedStatement_execute(p);
     }
