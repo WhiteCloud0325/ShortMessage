@@ -1,8 +1,23 @@
 #ifndef Protocol_H_
 #define Protocol_H_
+#pragma pack(1)
 #include <string>
 #include <stdint.h>
 #include <time.h>
+#include <vector>
+
+enum SignalType {
+    Login = 0x00,
+    Logout = 0x02,
+    MOBILE_MANAGER_REQUEST = 0x03,
+    SIMPLE_MESSAGE = 0x40,
+    FORWARD_NOACK_MESSAGE = 0x50,
+    BACKWARD_NOACK_MESSAGE = 0X51,
+    COMPLETE_MESSAGE = 0X60,
+    INQUIRE_MESSAGE_REQUEST = 0X70,
+    RECEIPTE = 0X80
+}
+
 struct Protocol {
     Protocol(): type(0), uid(-1), net_type(-1), ip(0), retry_count(0){}
     Protocol(int32_t type_, int64_t uid_, int32_t net_type_, uint32_t ip_, int64_t msg_id_, std::string content_):
@@ -47,4 +62,77 @@ struct SendMessage {
     std::string content;
     int64_t timestamp;
 };
+
+struct ControlHead {
+    uint32_t to_id;
+    uint32_t from_id;
+    uint16_t frame_id;
+    uint8_t type;
+    uint8_t retain;
+    char *content; 
+};
+
+// mobile 请求，开机，关机，移动性管理
+struct MobileRequest {
+    uint32_t timestamp;
+    uint8_t position;   //位置0x00：东经南纬，0x01：东经北纬0x10：西经南纬，0x11：西经北纬
+    float lng;  //经度  
+    float lat;  //纬度
+    float height;   //高度  
+    char *content;  //cover
+};
+
+struct Satellite{
+    uint8_t grand_cover; //地面覆盖 0x00：无地面网络覆盖,0x01：有地面网络覆盖
+    uint8_t sat_cover_num;
+    std::vector<uint8_t> sat_id;
+    std::vector<uint8_t> beam_id;
+    std::vector<float> snr;
+};
+
+struct Response {
+    uint32_t to_id;
+    uint32_t from_id;
+    uint16_t frame_id;
+    uint8_t type;
+    uint8_t retain;
+    uint8_t receipt_type;
+    uint8_t receipt_indicate;
+};
+
+
+struct MessageReceiptItem{
+    uint32_t user_id;
+    uint16_t frame_id;
+    uint8_t receipt_type;
+    uint8_t receipt_indicate;
+};
+struct MessageResponse {
+    uint64_t to_id;
+    uint64_t fromt_id;
+    uint16_t frame_id;
+    uint8_t type;
+    uint8_t retain;  
+    std::vector<MessageReceiptItem> message_receipt_items; 
+};
+
+struct UserAckResponse {
+    uint16_t frame_id;
+    uint8_t receipt_type;
+    uint8_t receipt_indicate;
+};
+
+struct MesaageInquireRequest {
+    uint8_t num;
+    uint32_t start_time;
+    uint32_t end_time;
+};
+
+
+
+
+
+
+
+
 #endif /* define Protocol*/
