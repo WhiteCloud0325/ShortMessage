@@ -1,17 +1,12 @@
 namespace cpp im
-struct Request {
-    1: i32 type
-    2: string content
-}
 
-struct Response {
-    1:i32 type 
-    2:i64 uid
-    3:string content
-    4:string ip
+struct AccessMessage { 
+    1:i64 uid
+    2:repeated i32 beam_id;
+    3:string content;
 }
 
 service LogicInterface {
-    void SendMessage(1: Request message)
-    void AckMessage(1:Response message)
+    void AccessToLogic(1: string request)
+    void LogicToAccess(1: AccessMessage response)
 }
