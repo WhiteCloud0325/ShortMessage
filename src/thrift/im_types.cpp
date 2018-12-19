@@ -14,133 +14,23 @@
 namespace im {
 
 
-Request::~Request() throw() {
+AccessMessage::~AccessMessage() throw() {
 }
 
 
-void Request::__set_type(const int32_t val) {
-  this->type = val;
-}
-
-void Request::__set_content(const std::string& val) {
-  this->content = val;
-}
-
-uint32_t Request::read(::apache::thrift::protocol::TProtocol* iprot) {
-
-  apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
-  uint32_t xfer = 0;
-  std::string fname;
-  ::apache::thrift::protocol::TType ftype;
-  int16_t fid;
-
-  xfer += iprot->readStructBegin(fname);
-
-  using ::apache::thrift::protocol::TProtocolException;
-
-
-  while (true)
-  {
-    xfer += iprot->readFieldBegin(fname, ftype, fid);
-    if (ftype == ::apache::thrift::protocol::T_STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-        if (ftype == ::apache::thrift::protocol::T_I32) {
-          xfer += iprot->readI32(this->type);
-          this->__isset.type = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      case 2:
-        if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->content);
-          this->__isset.content = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      default:
-        xfer += iprot->skip(ftype);
-        break;
-    }
-    xfer += iprot->readFieldEnd();
-  }
-
-  xfer += iprot->readStructEnd();
-
-  return xfer;
-}
-
-uint32_t Request::write(::apache::thrift::protocol::TProtocol* oprot) const {
-  uint32_t xfer = 0;
-  apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("Request");
-
-  xfer += oprot->writeFieldBegin("type", ::apache::thrift::protocol::T_I32, 1);
-  xfer += oprot->writeI32(this->type);
-  xfer += oprot->writeFieldEnd();
-
-  xfer += oprot->writeFieldBegin("content", ::apache::thrift::protocol::T_STRING, 2);
-  xfer += oprot->writeString(this->content);
-  xfer += oprot->writeFieldEnd();
-
-  xfer += oprot->writeFieldStop();
-  xfer += oprot->writeStructEnd();
-  return xfer;
-}
-
-void swap(Request &a, Request &b) {
-  using ::std::swap;
-  swap(a.type, b.type);
-  swap(a.content, b.content);
-  swap(a.__isset, b.__isset);
-}
-
-Request::Request(const Request& other0) {
-  type = other0.type;
-  content = other0.content;
-  __isset = other0.__isset;
-}
-Request& Request::operator=(const Request& other1) {
-  type = other1.type;
-  content = other1.content;
-  __isset = other1.__isset;
-  return *this;
-}
-void Request::printTo(std::ostream& out) const {
-  using ::apache::thrift::to_string;
-  out << "Request(";
-  out << "type=" << to_string(type);
-  out << ", " << "content=" << to_string(content);
-  out << ")";
-}
-
-
-Response::~Response() throw() {
-}
-
-
-void Response::__set_type(const int32_t val) {
-  this->type = val;
-}
-
-void Response::__set_uid(const int64_t val) {
+void AccessMessage::__set_uid(const int64_t val) {
   this->uid = val;
 }
 
-void Response::__set_content(const std::string& val) {
+void AccessMessage::__set_beam_id(const std::vector<int32_t> & val) {
+  this->beam_id = val;
+}
+
+void AccessMessage::__set_content(const std::string& val) {
   this->content = val;
 }
 
-void Response::__set_ip(const std::string& val) {
-  this->ip = val;
-}
-
-uint32_t Response::read(::apache::thrift::protocol::TProtocol* iprot) {
+uint32_t AccessMessage::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -162,17 +52,29 @@ uint32_t Response::read(::apache::thrift::protocol::TProtocol* iprot) {
     switch (fid)
     {
       case 1:
-        if (ftype == ::apache::thrift::protocol::T_I32) {
-          xfer += iprot->readI32(this->type);
-          this->__isset.type = true;
+        if (ftype == ::apache::thrift::protocol::T_I64) {
+          xfer += iprot->readI64(this->uid);
+          this->__isset.uid = true;
         } else {
           xfer += iprot->skip(ftype);
         }
         break;
       case 2:
-        if (ftype == ::apache::thrift::protocol::T_I64) {
-          xfer += iprot->readI64(this->uid);
-          this->__isset.uid = true;
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->beam_id.clear();
+            uint32_t _size0;
+            ::apache::thrift::protocol::TType _etype3;
+            xfer += iprot->readListBegin(_etype3, _size0);
+            this->beam_id.resize(_size0);
+            uint32_t _i4;
+            for (_i4 = 0; _i4 < _size0; ++_i4)
+            {
+              xfer += iprot->readI32(this->beam_id[_i4]);
+            }
+            xfer += iprot->readListEnd();
+          }
+          this->__isset.beam_id = true;
         } else {
           xfer += iprot->skip(ftype);
         }
@@ -185,14 +87,6 @@ uint32_t Response::read(::apache::thrift::protocol::TProtocol* iprot) {
           xfer += iprot->skip(ftype);
         }
         break;
-      case 4:
-        if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->ip);
-          this->__isset.ip = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -205,25 +99,29 @@ uint32_t Response::read(::apache::thrift::protocol::TProtocol* iprot) {
   return xfer;
 }
 
-uint32_t Response::write(::apache::thrift::protocol::TProtocol* oprot) const {
+uint32_t AccessMessage::write(::apache::thrift::protocol::TProtocol* oprot) const {
   uint32_t xfer = 0;
   apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("Response");
+  xfer += oprot->writeStructBegin("AccessMessage");
 
-  xfer += oprot->writeFieldBegin("type", ::apache::thrift::protocol::T_I32, 1);
-  xfer += oprot->writeI32(this->type);
+  xfer += oprot->writeFieldBegin("uid", ::apache::thrift::protocol::T_I64, 1);
+  xfer += oprot->writeI64(this->uid);
   xfer += oprot->writeFieldEnd();
 
-  xfer += oprot->writeFieldBegin("uid", ::apache::thrift::protocol::T_I64, 2);
-  xfer += oprot->writeI64(this->uid);
+  xfer += oprot->writeFieldBegin("beam_id", ::apache::thrift::protocol::T_LIST, 2);
+  {
+    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_I32, static_cast<uint32_t>(this->beam_id.size()));
+    std::vector<int32_t> ::const_iterator _iter5;
+    for (_iter5 = this->beam_id.begin(); _iter5 != this->beam_id.end(); ++_iter5)
+    {
+      xfer += oprot->writeI32((*_iter5));
+    }
+    xfer += oprot->writeListEnd();
+  }
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldBegin("content", ::apache::thrift::protocol::T_STRING, 3);
   xfer += oprot->writeString(this->content);
-  xfer += oprot->writeFieldEnd();
-
-  xfer += oprot->writeFieldBegin("ip", ::apache::thrift::protocol::T_STRING, 4);
-  xfer += oprot->writeString(this->ip);
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();
@@ -231,37 +129,33 @@ uint32_t Response::write(::apache::thrift::protocol::TProtocol* oprot) const {
   return xfer;
 }
 
-void swap(Response &a, Response &b) {
+void swap(AccessMessage &a, AccessMessage &b) {
   using ::std::swap;
-  swap(a.type, b.type);
   swap(a.uid, b.uid);
+  swap(a.beam_id, b.beam_id);
   swap(a.content, b.content);
-  swap(a.ip, b.ip);
   swap(a.__isset, b.__isset);
 }
 
-Response::Response(const Response& other2) {
-  type = other2.type;
-  uid = other2.uid;
-  content = other2.content;
-  ip = other2.ip;
-  __isset = other2.__isset;
+AccessMessage::AccessMessage(const AccessMessage& other6) {
+  uid = other6.uid;
+  beam_id = other6.beam_id;
+  content = other6.content;
+  __isset = other6.__isset;
 }
-Response& Response::operator=(const Response& other3) {
-  type = other3.type;
-  uid = other3.uid;
-  content = other3.content;
-  ip = other3.ip;
-  __isset = other3.__isset;
+AccessMessage& AccessMessage::operator=(const AccessMessage& other7) {
+  uid = other7.uid;
+  beam_id = other7.beam_id;
+  content = other7.content;
+  __isset = other7.__isset;
   return *this;
 }
-void Response::printTo(std::ostream& out) const {
+void AccessMessage::printTo(std::ostream& out) const {
   using ::apache::thrift::to_string;
-  out << "Response(";
-  out << "type=" << to_string(type);
-  out << ", " << "uid=" << to_string(uid);
+  out << "AccessMessage(";
+  out << "uid=" << to_string(uid);
+  out << ", " << "beam_id=" << to_string(beam_id);
   out << ", " << "content=" << to_string(content);
-  out << ", " << "ip=" << to_string(ip);
   out << ")";
 }
 

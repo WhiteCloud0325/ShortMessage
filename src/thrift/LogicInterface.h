@@ -21,8 +21,8 @@ namespace im {
 class LogicInterfaceIf {
  public:
   virtual ~LogicInterfaceIf() {}
-  virtual void SendMessage(const Request& message) = 0;
-  virtual void AckMessage(const Response& message) = 0;
+  virtual void AccessToLogic(const std::string& request) = 0;
+  virtual void LogicToAccess(const AccessMessage& response) = 0;
 };
 
 class LogicInterfaceIfFactory {
@@ -52,45 +52,45 @@ class LogicInterfaceIfSingletonFactory : virtual public LogicInterfaceIfFactory 
 class LogicInterfaceNull : virtual public LogicInterfaceIf {
  public:
   virtual ~LogicInterfaceNull() {}
-  void SendMessage(const Request& /* message */) {
+  void AccessToLogic(const std::string& /* request */) {
     return;
   }
-  void AckMessage(const Response& /* message */) {
+  void LogicToAccess(const AccessMessage& /* response */) {
     return;
   }
 };
 
-typedef struct _LogicInterface_SendMessage_args__isset {
-  _LogicInterface_SendMessage_args__isset() : message(false) {}
-  bool message :1;
-} _LogicInterface_SendMessage_args__isset;
+typedef struct _LogicInterface_AccessToLogic_args__isset {
+  _LogicInterface_AccessToLogic_args__isset() : request(false) {}
+  bool request :1;
+} _LogicInterface_AccessToLogic_args__isset;
 
-class LogicInterface_SendMessage_args {
+class LogicInterface_AccessToLogic_args {
  public:
 
-  LogicInterface_SendMessage_args(const LogicInterface_SendMessage_args&);
-  LogicInterface_SendMessage_args& operator=(const LogicInterface_SendMessage_args&);
-  LogicInterface_SendMessage_args() {
+  LogicInterface_AccessToLogic_args(const LogicInterface_AccessToLogic_args&);
+  LogicInterface_AccessToLogic_args& operator=(const LogicInterface_AccessToLogic_args&);
+  LogicInterface_AccessToLogic_args() : request() {
   }
 
-  virtual ~LogicInterface_SendMessage_args() throw();
-  Request message;
+  virtual ~LogicInterface_AccessToLogic_args() throw();
+  std::string request;
 
-  _LogicInterface_SendMessage_args__isset __isset;
+  _LogicInterface_AccessToLogic_args__isset __isset;
 
-  void __set_message(const Request& val);
+  void __set_request(const std::string& val);
 
-  bool operator == (const LogicInterface_SendMessage_args & rhs) const
+  bool operator == (const LogicInterface_AccessToLogic_args & rhs) const
   {
-    if (!(message == rhs.message))
+    if (!(request == rhs.request))
       return false;
     return true;
   }
-  bool operator != (const LogicInterface_SendMessage_args &rhs) const {
+  bool operator != (const LogicInterface_AccessToLogic_args &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const LogicInterface_SendMessage_args & ) const;
+  bool operator < (const LogicInterface_AccessToLogic_args & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
@@ -98,37 +98,37 @@ class LogicInterface_SendMessage_args {
 };
 
 
-class LogicInterface_SendMessage_pargs {
+class LogicInterface_AccessToLogic_pargs {
  public:
 
 
-  virtual ~LogicInterface_SendMessage_pargs() throw();
-  const Request* message;
+  virtual ~LogicInterface_AccessToLogic_pargs() throw();
+  const std::string* request;
 
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
 };
 
 
-class LogicInterface_SendMessage_result {
+class LogicInterface_AccessToLogic_result {
  public:
 
-  LogicInterface_SendMessage_result(const LogicInterface_SendMessage_result&);
-  LogicInterface_SendMessage_result& operator=(const LogicInterface_SendMessage_result&);
-  LogicInterface_SendMessage_result() {
+  LogicInterface_AccessToLogic_result(const LogicInterface_AccessToLogic_result&);
+  LogicInterface_AccessToLogic_result& operator=(const LogicInterface_AccessToLogic_result&);
+  LogicInterface_AccessToLogic_result() {
   }
 
-  virtual ~LogicInterface_SendMessage_result() throw();
+  virtual ~LogicInterface_AccessToLogic_result() throw();
 
-  bool operator == (const LogicInterface_SendMessage_result & /* rhs */) const
+  bool operator == (const LogicInterface_AccessToLogic_result & /* rhs */) const
   {
     return true;
   }
-  bool operator != (const LogicInterface_SendMessage_result &rhs) const {
+  bool operator != (const LogicInterface_AccessToLogic_result &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const LogicInterface_SendMessage_result & ) const;
+  bool operator < (const LogicInterface_AccessToLogic_result & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
@@ -136,47 +136,47 @@ class LogicInterface_SendMessage_result {
 };
 
 
-class LogicInterface_SendMessage_presult {
+class LogicInterface_AccessToLogic_presult {
  public:
 
 
-  virtual ~LogicInterface_SendMessage_presult() throw();
+  virtual ~LogicInterface_AccessToLogic_presult() throw();
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
 
 };
 
-typedef struct _LogicInterface_AckMessage_args__isset {
-  _LogicInterface_AckMessage_args__isset() : message(false) {}
-  bool message :1;
-} _LogicInterface_AckMessage_args__isset;
+typedef struct _LogicInterface_LogicToAccess_args__isset {
+  _LogicInterface_LogicToAccess_args__isset() : response(false) {}
+  bool response :1;
+} _LogicInterface_LogicToAccess_args__isset;
 
-class LogicInterface_AckMessage_args {
+class LogicInterface_LogicToAccess_args {
  public:
 
-  LogicInterface_AckMessage_args(const LogicInterface_AckMessage_args&);
-  LogicInterface_AckMessage_args& operator=(const LogicInterface_AckMessage_args&);
-  LogicInterface_AckMessage_args() {
+  LogicInterface_LogicToAccess_args(const LogicInterface_LogicToAccess_args&);
+  LogicInterface_LogicToAccess_args& operator=(const LogicInterface_LogicToAccess_args&);
+  LogicInterface_LogicToAccess_args() {
   }
 
-  virtual ~LogicInterface_AckMessage_args() throw();
-  Response message;
+  virtual ~LogicInterface_LogicToAccess_args() throw();
+  AccessMessage response;
 
-  _LogicInterface_AckMessage_args__isset __isset;
+  _LogicInterface_LogicToAccess_args__isset __isset;
 
-  void __set_message(const Response& val);
+  void __set_response(const AccessMessage& val);
 
-  bool operator == (const LogicInterface_AckMessage_args & rhs) const
+  bool operator == (const LogicInterface_LogicToAccess_args & rhs) const
   {
-    if (!(message == rhs.message))
+    if (!(response == rhs.response))
       return false;
     return true;
   }
-  bool operator != (const LogicInterface_AckMessage_args &rhs) const {
+  bool operator != (const LogicInterface_LogicToAccess_args &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const LogicInterface_AckMessage_args & ) const;
+  bool operator < (const LogicInterface_LogicToAccess_args & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
@@ -184,37 +184,37 @@ class LogicInterface_AckMessage_args {
 };
 
 
-class LogicInterface_AckMessage_pargs {
+class LogicInterface_LogicToAccess_pargs {
  public:
 
 
-  virtual ~LogicInterface_AckMessage_pargs() throw();
-  const Response* message;
+  virtual ~LogicInterface_LogicToAccess_pargs() throw();
+  const AccessMessage* response;
 
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
 };
 
 
-class LogicInterface_AckMessage_result {
+class LogicInterface_LogicToAccess_result {
  public:
 
-  LogicInterface_AckMessage_result(const LogicInterface_AckMessage_result&);
-  LogicInterface_AckMessage_result& operator=(const LogicInterface_AckMessage_result&);
-  LogicInterface_AckMessage_result() {
+  LogicInterface_LogicToAccess_result(const LogicInterface_LogicToAccess_result&);
+  LogicInterface_LogicToAccess_result& operator=(const LogicInterface_LogicToAccess_result&);
+  LogicInterface_LogicToAccess_result() {
   }
 
-  virtual ~LogicInterface_AckMessage_result() throw();
+  virtual ~LogicInterface_LogicToAccess_result() throw();
 
-  bool operator == (const LogicInterface_AckMessage_result & /* rhs */) const
+  bool operator == (const LogicInterface_LogicToAccess_result & /* rhs */) const
   {
     return true;
   }
-  bool operator != (const LogicInterface_AckMessage_result &rhs) const {
+  bool operator != (const LogicInterface_LogicToAccess_result &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const LogicInterface_AckMessage_result & ) const;
+  bool operator < (const LogicInterface_LogicToAccess_result & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
@@ -222,11 +222,11 @@ class LogicInterface_AckMessage_result {
 };
 
 
-class LogicInterface_AckMessage_presult {
+class LogicInterface_LogicToAccess_presult {
  public:
 
 
-  virtual ~LogicInterface_AckMessage_presult() throw();
+  virtual ~LogicInterface_LogicToAccess_presult() throw();
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
 
@@ -257,12 +257,12 @@ class LogicInterfaceClient : virtual public LogicInterfaceIf {
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return poprot_;
   }
-  void SendMessage(const Request& message);
-  void send_SendMessage(const Request& message);
-  void recv_SendMessage();
-  void AckMessage(const Response& message);
-  void send_AckMessage(const Response& message);
-  void recv_AckMessage();
+  void AccessToLogic(const std::string& request);
+  void send_AccessToLogic(const std::string& request);
+  void recv_AccessToLogic();
+  void LogicToAccess(const AccessMessage& response);
+  void send_LogicToAccess(const AccessMessage& response);
+  void recv_LogicToAccess();
  protected:
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot_;
@@ -278,13 +278,13 @@ class LogicInterfaceProcessor : public ::apache::thrift::TDispatchProcessor {
   typedef  void (LogicInterfaceProcessor::*ProcessFunction)(int32_t, ::apache::thrift::protocol::TProtocol*, ::apache::thrift::protocol::TProtocol*, void*);
   typedef std::map<std::string, ProcessFunction> ProcessMap;
   ProcessMap processMap_;
-  void process_SendMessage(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_AckMessage(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_AccessToLogic(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_LogicToAccess(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
   LogicInterfaceProcessor(boost::shared_ptr<LogicInterfaceIf> iface) :
     iface_(iface) {
-    processMap_["SendMessage"] = &LogicInterfaceProcessor::process_SendMessage;
-    processMap_["AckMessage"] = &LogicInterfaceProcessor::process_AckMessage;
+    processMap_["AccessToLogic"] = &LogicInterfaceProcessor::process_AccessToLogic;
+    processMap_["LogicToAccess"] = &LogicInterfaceProcessor::process_LogicToAccess;
   }
 
   virtual ~LogicInterfaceProcessor() {}
@@ -313,22 +313,22 @@ class LogicInterfaceMultiface : virtual public LogicInterfaceIf {
     ifaces_.push_back(iface);
   }
  public:
-  void SendMessage(const Request& message) {
+  void AccessToLogic(const std::string& request) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->SendMessage(message);
+      ifaces_[i]->AccessToLogic(request);
     }
-    ifaces_[i]->SendMessage(message);
+    ifaces_[i]->AccessToLogic(request);
   }
 
-  void AckMessage(const Response& message) {
+  void LogicToAccess(const AccessMessage& response) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->AckMessage(message);
+      ifaces_[i]->LogicToAccess(response);
     }
-    ifaces_[i]->AckMessage(message);
+    ifaces_[i]->LogicToAccess(response);
   }
 
 };
@@ -361,12 +361,12 @@ class LogicInterfaceConcurrentClient : virtual public LogicInterfaceIf {
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return poprot_;
   }
-  void SendMessage(const Request& message);
-  int32_t send_SendMessage(const Request& message);
-  void recv_SendMessage(const int32_t seqid);
-  void AckMessage(const Response& message);
-  int32_t send_AckMessage(const Response& message);
-  void recv_AckMessage(const int32_t seqid);
+  void AccessToLogic(const std::string& request);
+  int32_t send_AccessToLogic(const std::string& request);
+  void recv_AccessToLogic(const int32_t seqid);
+  void LogicToAccess(const AccessMessage& response);
+  int32_t send_LogicToAccess(const AccessMessage& response);
+  void recv_LogicToAccess(const int32_t seqid);
  protected:
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot_;

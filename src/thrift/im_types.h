@@ -19,111 +19,51 @@
 
 namespace im {
 
-class Request;
+class AccessMessage;
 
-class Response;
-
-typedef struct _Request__isset {
-  _Request__isset() : type(false), content(false) {}
-  bool type :1;
-  bool content :1;
-} _Request__isset;
-
-class Request {
- public:
-
-  Request(const Request&);
-  Request& operator=(const Request&);
-  Request() : type(0), content() {
-  }
-
-  virtual ~Request() throw();
-  int32_t type;
-  std::string content;
-
-  _Request__isset __isset;
-
-  void __set_type(const int32_t val);
-
-  void __set_content(const std::string& val);
-
-  bool operator == (const Request & rhs) const
-  {
-    if (!(type == rhs.type))
-      return false;
-    if (!(content == rhs.content))
-      return false;
-    return true;
-  }
-  bool operator != (const Request &rhs) const {
-    return !(*this == rhs);
-  }
-
-  bool operator < (const Request & ) const;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
-  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
-
-  virtual void printTo(std::ostream& out) const;
-};
-
-void swap(Request &a, Request &b);
-
-inline std::ostream& operator<<(std::ostream& out, const Request& obj)
-{
-  obj.printTo(out);
-  return out;
-}
-
-typedef struct _Response__isset {
-  _Response__isset() : type(false), uid(false), content(false), ip(false) {}
-  bool type :1;
+typedef struct _AccessMessage__isset {
+  _AccessMessage__isset() : uid(false), beam_id(false), content(false) {}
   bool uid :1;
+  bool beam_id :1;
   bool content :1;
-  bool ip :1;
-} _Response__isset;
+} _AccessMessage__isset;
 
-class Response {
+class AccessMessage {
  public:
 
-  Response(const Response&);
-  Response& operator=(const Response&);
-  Response() : type(0), uid(0), content(), ip() {
+  AccessMessage(const AccessMessage&);
+  AccessMessage& operator=(const AccessMessage&);
+  AccessMessage() : uid(0), content() {
   }
 
-  virtual ~Response() throw();
-  int32_t type;
+  virtual ~AccessMessage() throw();
   int64_t uid;
+  std::vector<int32_t>  beam_id;
   std::string content;
-  std::string ip;
 
-  _Response__isset __isset;
-
-  void __set_type(const int32_t val);
+  _AccessMessage__isset __isset;
 
   void __set_uid(const int64_t val);
 
+  void __set_beam_id(const std::vector<int32_t> & val);
+
   void __set_content(const std::string& val);
 
-  void __set_ip(const std::string& val);
-
-  bool operator == (const Response & rhs) const
+  bool operator == (const AccessMessage & rhs) const
   {
-    if (!(type == rhs.type))
-      return false;
     if (!(uid == rhs.uid))
+      return false;
+    if (!(beam_id == rhs.beam_id))
       return false;
     if (!(content == rhs.content))
       return false;
-    if (!(ip == rhs.ip))
-      return false;
     return true;
   }
-  bool operator != (const Response &rhs) const {
+  bool operator != (const AccessMessage &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const Response & ) const;
+  bool operator < (const AccessMessage & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
@@ -131,9 +71,9 @@ class Response {
   virtual void printTo(std::ostream& out) const;
 };
 
-void swap(Response &a, Response &b);
+void swap(AccessMessage &a, AccessMessage &b);
 
-inline std::ostream& operator<<(std::ostream& out, const Response& obj)
+inline std::ostream& operator<<(std::ostream& out, const AccessMessage& obj)
 {
   obj.printTo(out);
   return out;
