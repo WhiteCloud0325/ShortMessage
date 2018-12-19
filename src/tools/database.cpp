@@ -77,20 +77,20 @@ Connection_T Database::GetConnection() {
  *          @ids
  * return: bool
 */
-bool Database::UpdateSateCover(Connection_T conn, const int64_t &user_id, const Satellite& sate_cover) {
+bool Database::UpdateSateCover(Connection_T conn, const uint32_t &user_id, const Satellite& sate_cover) {
     if (sate_cover.sat_cover_num == 0) {
         return true;
     } 
     std::vector<float> temp_snr(MAX_BEAM_NUM, -1);
     for (int i = 0; i < sate_cover.sat_cover_num; ++i) {
-        temp_snr[sate_cover.beam_id[i]] = sate_cover.snr[i];
+        temp_snr[sate_cover.beam_id[i] - 1] = sate_cover.snr[i];
     } 
-    std::string sql = "Update sate_cover SET ";
+    std::string sql = "UPDATE sate_cover SET ";
     for (int i = 1; i <= MAX_BEAM_NUM; ++i) {
         sql += "SNR_" + std::to_string(i) + " = " + std::to_string(temp_snr[i - 1]) + ",";
     }
     sql.pop_back();
-    sql += " WHERE user_id = " + std::to_string(user_id) + ")";
+    sql += " WHERE user_id = " + std::to_string(user_id);
     TRY {
         Connection_execute(conn, sql.c_str());
     }
@@ -102,38 +102,9 @@ bool Database::UpdateSateCover(Connection_T conn, const int64_t &user_id, const 
     return true;
 }
 
-/** UnsertNetworkCover
- *  function: 设置NetworkCover net_type 为0
- *  params:
- *          @conn
- *          @user_id
- *          @ids
- *  return: bool
-*/
-bool Database::UnsetSateCover(Connection_T conn, const int64_t &user_id, const std::vector<int> &ids) {
-    if (ids.empty()) {
-        return true;
-    }
-    std::string sql = "Update sate_cover SET sate_type = 0 WHERE user_id = ";
-    sql += std::to_string(user_id);
-    sql += " and sate_beam_id IN( ";
-    for (auto i : ids) {
-        sql += std::to_string(i) + ",";
-    }
-    sql.pop_back();
-    sql.push_back(')');
-    TRY {
-        Connection_execute(conn, sql.c_str());
-    }
-    CATCH(SQLException) {
-        LOG_INFO("Database UnsetSateCover Failed: userid=%lld||SQLException=%s", user_id, Connection_getLastError(conn));
-        return false;
-    }
-    END_TRY;
-    return true;
-}
 
-int Database::SelectSateCover(Connection_T conn, const int64_t &user_id) {
+
+/*std::vector<> Database::SelectSateCover(Connection_T conn, const int64_t &user_id) {
     int res = -1;
     TRY {
         PreparedStatement_T p = Connection_prepareStatement(conn, "SELECT sate_beam_id, SNR	FROM sate_cover WHERE user_id = ? and sate_type =1 ORDER BY SNR DESC LIMIT 1");
@@ -148,7 +119,7 @@ int Database::SelectSateCover(Connection_T conn, const int64_t &user_id) {
     }
     END_TRY;
     return res;
-}
+}*/
 
 /**
  *  function: InserMessage 插入消息

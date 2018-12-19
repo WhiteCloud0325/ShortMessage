@@ -16,8 +16,8 @@ public:
     bool Init(const libconfig::Setting &setting);
     ~Database();
     Connection_T GetConnection();
-    bool UpdateSateCover(Connection_T conn, const int64_t &user_id, const Satellite& sate_cover);
-    std::vector<uint8_t>  SelectSateCover(Connection_T conn, const int64_t &user_id);
+    bool UpdateSateCover(Connection_T conn, const uint64_t &user_id, const Satellite& sate_cover);
+   // std::vector<uint8_t>  SelectSateCover(Connection_T conn, const int64_t &user_id);
     int64_t InsertMessage(Connection_T conn, const int64_t &from_id, const int64_t &to_id, const std::string &content, const time_t &timestamp);
     void GetOfflineMessage(Connection_T conn, const int64_t &to_id, int limit_num);
     bool SetStateMessage(Connection_T conn, const int64_t &msg_id);

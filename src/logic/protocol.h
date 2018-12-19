@@ -16,7 +16,7 @@ enum SignalType {
     COMPLETE_MESSAGE = 0X60,
     INQUIRE_MESSAGE_REQUEST = 0X70,
     RECEIPTE = 0X80
-}
+};
 
 struct Protocol {
     Protocol(): type(0), uid(-1), net_type(-1), ip(0), retry_count(0){}
