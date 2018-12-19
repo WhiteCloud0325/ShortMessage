@@ -7,25 +7,8 @@
 #include <string>
 #include <vector>
 #include <time.h>
-#include "tools/protocol.h"
-enum RegisterResultCode {
-     REGISTER_SUCCESS = 0, //注册成功
-     REGISTER_ERROR = 1,     //未知错误
-     REGISTER_NUMBERUSED = 2    //手机号已使用
-};
-enum AuthResultCode {
-     AUTH_SUCCESS = 0,   //认证成功
-     AUTH_ERROR = 1,     //未知错误
-     AUTH_NAME_OR_PASSWORD = 2   //用户名或密码错误
-};
+#include "logic/protocol.h"
 
-
-
-enum QueryFriendResultCode {
-    QUERYFRIEND_SUCCESS = 0, // 查到好友
-    QUERYFRIEND_ERROR = 1, // 异常错误
-    QUERYFRIEND_NOEXIST = 2, //好友不存在
-};
 
 class Database {
 public:
@@ -33,16 +16,8 @@ public:
     bool Init(const libconfig::Setting &setting);
     ~Database();
     Connection_T GetConnection();
-    //bool Register(const std::string &number, const std::string &nickname, const std::string &password, uint64_t &user_id);
-    int64_t GetUser(Connection_T conn, const std::string &number);
-    int AddUser(Connection_T conn, const std::string &number, const std::string &nickname, const std::string &password, const std::string &ip, int64_t &user_id);
-    int AuthUser(Connection_T conn, const std::string &number, const std::string &password, const std::string &ip, int64_t &user_id);
-    void LogoutUser(Connection_T conn, const int64_t &user_id);
-    bool AddFriend(Connection_T conn, const int64_t &user_id, const int64_t &friend_id);
-    int QueryFriend(Connection_T conn, const int64_t &user_id, const int64_t &friend_id);
-    bool SetSateCover(Connection_T conn, const int64_t &user_id, const std::vector<int> &ids);
-    bool UnsetSateCover(Connection_T conn, const int64_t &user_id, const std::vector<int> &ids);
-    int  SelectSateCover(Connection_T conn, const int64_t &user_id);
+    bool UpdateSateCover(Connection_T conn, const int64_t &user_id, const Satellite& sate_cover);
+    std::vector<uint8_t>  SelectSateCover(Connection_T conn, const int64_t &user_id);
     int64_t InsertMessage(Connection_T conn, const int64_t &from_id, const int64_t &to_id, const std::string &content, const time_t &timestamp);
     void GetOfflineMessage(Connection_T conn, const int64_t &to_id, int limit_num);
     bool SetStateMessage(Connection_T conn, const int64_t &msg_id);
