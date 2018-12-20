@@ -1,5 +1,4 @@
 #include "logic/user_manager.h"
-#include "proto/im.pb.h"
 #include "tools/logger.h"
 using namespace im;
 
