@@ -18,7 +18,7 @@ AccessMessage::~AccessMessage() throw() {
 }
 
 
-void AccessMessage::__set_uid(const int64_t val) {
+void AccessMessage::__set_uid(const int32_t val) {
   this->uid = val;
 }
 
@@ -52,8 +52,8 @@ uint32_t AccessMessage::read(::apache::thrift::protocol::TProtocol* iprot) {
     switch (fid)
     {
       case 1:
-        if (ftype == ::apache::thrift::protocol::T_I64) {
-          xfer += iprot->readI64(this->uid);
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->uid);
           this->__isset.uid = true;
         } else {
           xfer += iprot->skip(ftype);
@@ -104,8 +104,8 @@ uint32_t AccessMessage::write(::apache::thrift::protocol::TProtocol* oprot) cons
   apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
   xfer += oprot->writeStructBegin("AccessMessage");
 
-  xfer += oprot->writeFieldBegin("uid", ::apache::thrift::protocol::T_I64, 1);
-  xfer += oprot->writeI64(this->uid);
+  xfer += oprot->writeFieldBegin("uid", ::apache::thrift::protocol::T_I32, 1);
+  xfer += oprot->writeI32(this->uid);
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldBegin("beam_id", ::apache::thrift::protocol::T_LIST, 2);
