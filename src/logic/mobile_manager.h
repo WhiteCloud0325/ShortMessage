@@ -3,12 +3,15 @@
 
 #include "tools/database.h"
 #include "tools/qos_send_daemon.h"
-#include "tools/protocol.h"
+#include "logic/protocol.h"
 class MobileManager {
 public:
     MobileManager(): database_(NULL){}
     ~MobileManager(){}
     bool Init(Database *database);
+    void ProcessLogin(const ControlHead * control_head);
+    void ProcessLogout(const ControlHead * control_head);
+    void ProcessMobileRequest(const ControlHead * control_head);
 private:
     Database * database_;
 };
