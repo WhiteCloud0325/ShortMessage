@@ -17,7 +17,7 @@ enum SignalType {
     INQUIRE_MESSAGE_REQUEST = 0X70,
     RECEIPTE = 0X80
 };
-
+/*
 struct Protocol {
     Protocol(): type(0), uid(-1), net_type(-1), ip(0), retry_count(0){}
     Protocol(int32_t type_, int64_t uid_, int32_t net_type_, uint32_t ip_, int64_t msg_id_, std::string content_):
@@ -61,7 +61,7 @@ struct SendMessage {
     int64_t to_id;
     std::string content;
     int64_t timestamp;
-};
+};*/
 
 struct ControlHead {
     uint32_t to_id;
@@ -69,7 +69,7 @@ struct ControlHead {
     uint16_t frame_id;
     uint8_t type;
     uint8_t retain;
-    char *content; 
+    char content[]; 
 };
 
 // mobile 请求，开机，关机，移动性管理
@@ -79,14 +79,14 @@ struct MobileRequest {
     float lng;  //经度  
     float lat;  //纬度
     float height;   //高度  
-    char *content;  //cover
+    char content[];  //cover
 };
 
 struct Satellite{
     uint8_t grand_cover; //地面覆盖 0x00：无地面网络覆盖,0x01：有地面网络覆盖
     uint8_t sat_cover_num;
-    std::vector<uint8_t> sat_id;
-    std::vector<uint8_t> beam_id;
+    std::vector<int32_t> sat_id;
+    std::vector<int32_t> beam_id;
     std::vector<float> snr;
 };
 
