@@ -23,35 +23,25 @@ static void sig_int(int sig) {
     stopped = true;
     printf("service stopping...\n");
 }
-boost::shared_ptr<ThreadManager> manager;
-boost::shared_ptr<LogicInterfaceHandler> handler(new LogicInterfaceHandler);
-boost::shared_ptr<TProcessor> processor(new LogicInterfaceProcessor(handler));
-boost::shared_ptr<TProtocolFactory> protocol_factory(new TBinaryProtocolFactory);
-boost::shared_ptr<TServerTransport> server_transport(new TServerSocket(10000, 2 * 1000, 2 * 1000));
-boost::shared_ptr<TTransportFactory> transport_factory(new TBufferedTransportFactory());
-boost::shared_ptr<apache::thrift::server::TServer>  test_server(new TThreadPoolServer(processor, server_transport, transport_factory, protocol_factory, manager));
-void Start() {
-    manager->start();
-    test_server->serve();
-}
-
-void Stop() {
-    test_server->stop();
-}
 
 int main() {
     signal(SIGINT, sig_int);
     signal(SIGQUIT, sig_int);
     signal(SIGTERM, sig_int);
 
-    manager = ThreadManager::newSimpleThreadManager(10);
+    boost::shared_ptr<ThreadManager> manager = ThreadManager::newSimpleThreadManager(10);
+    boost::shared_ptr<LogicInterfaceHandler> handler(new LogicInterfaceHandler);    
+    boost::shared_ptr<TProcessor> processor(new LogicInterfaceProcessor(handler));
+    boost::shared_ptr<TProtocolFactory> protocol_factory(new TBinaryProtocolFactory());
+    boost::shared_ptr<TServerTransport> server_transport(new TServerSocket(10000, 2 * 1000, 2 * 1000));
+    boost::shared_ptr<TTransportFactory> transport_factory(new TBufferedTransportFactory());
     boost::shared_ptr<PlatformThreadFactory> factory(new PlatformThreadFactory());
     manager->threadFactory(factory);
-    boost::thread t(Start);
+    manager->start();
+    boost::shared_ptr<apache::thrift::server::TServer>  test_server(new TThreadPoolServer(processor, server_transport, transport_factory, protocol_factory, manager));
+    test_server->serve();
     while(!stopped) {
         usleep(1000000);
     }
-    Stop();
-    t.join();
     return 0;
 }
