@@ -43,7 +43,7 @@ bool Controller::Init(libconfig::Config &config) {
         }
 
         libconfig::Setting &qos_setting = config.lookup("Qos");
-        if (!qos_send_daemon_.Init(qos_setting)) {
+        if (!qos_send_daemon_.Init(qos_setting, &database_)) {
             LOG_INFO("QosSendDaemon Init Failed");
             return false;
         }

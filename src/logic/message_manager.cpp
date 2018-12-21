@@ -1,5 +1,6 @@
 #include "logic/message_manager.h"
 #include "tools/logger.h"
+#include "logic/coder.hpp"
 #include "workmanager/send_helper.h"
 #include <time.h>
 #include <arpa/inet.h>
@@ -30,7 +31,7 @@ void MessageManager::ProcessSimpleMessage(ControlHead *control_head) {
         return;
     }
     database_->InsertOfflineMessage(conn, control_head, id);
-    std::vector<int32_t> beams = database_->GetSatCover(conn, to_id);
+    std::vector<int32_t> beams = database_->GetSateCover(conn, to_id);
     Connection_close(conn);
     if (!beams.empty()) {
         std::string str = MessageEncode(control_head);
@@ -39,4 +40,9 @@ void MessageManager::ProcessSimpleMessage(ControlHead *control_head) {
     return;
 }
 
-
+void MessageManager::ProcessForwardNoAckMessage(ControlHead *control_head) {
+}
+void MessageManager::ProcessBackwardNoAckMessage(ControlHead *control_head) {
+}
+void MessageManager::ProcessCompleteMessage(ControlHead *control_head) {
+}

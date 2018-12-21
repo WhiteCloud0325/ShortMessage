@@ -40,6 +40,6 @@ void SendHelper::SendMessage(const uint32_t user_id, const std::string &buf, std
     send.__set_beam_id(beams);
     send.__set_content(buf);
     client_transport->open();
-    client->AckMessage(send);
+    client->LogicToAccess(send);
     client_transport->close();
 }

@@ -1,6 +1,7 @@
 #include "tools/qos_send_daemon.h"
 #include "tools/logger.h"
 #include <time.h>
+#include <unistd.h>
 #include <vector>
 QosSendDaemon::QosSendDaemon(): stop_(false),
                                 max_retry_count_(0),
@@ -16,7 +17,7 @@ QosSendDaemon::~QosSendDaemon() {
     }
 }
 
-bool QosSendDaemon::Init(const libconfig::Setting &setting) {
+bool QosSendDaemon::Init(const libconfig::Setting &setting, Database *database) {
     try {
         if (!setting.lookupValue("max_retry_count", max_retry_count_)) {
             return false;
@@ -33,6 +34,7 @@ bool QosSendDaemon::Init(const libconfig::Setting &setting) {
         LOG_INFO("QosSendDaemon Init Exception");
         return false;
     }
+    database_ = database;
     return true;
 }
 

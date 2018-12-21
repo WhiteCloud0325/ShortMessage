@@ -1,6 +1,7 @@
 #include "logic/mobile_manager.h"
 #include "workmanager/send_helper.h"
-#include "logic/coder.h"
+#include "tools/logger.h"
+#include "logic/coder.hpp"
 #include <arpa/inet.h>
 
 using namespace im;
@@ -13,7 +14,7 @@ bool MobileManager::Init(Database *database) {
 void MobileManager::ProcessLogin(const ControlHead* control_head) {
     uint32_t user_id = ntohl(control_head->from_id);
     MobileRequest *mobile_request = (MobileRequest*) (control_head->content);
-    uint8_t *pos = mobile_request->content;
+    uint8_t *pos = (uint8_t *) (mobile_request->content);
     Satellite sate;
     sate.grand_cover = *pos++;
     sate.sat_cover_num = *pos++;
@@ -58,7 +59,7 @@ void MobileManager::ProcessLogin(const ControlHead* control_head) {
     }
 
     Connection_close(conn);
-    std::string str =  RequestEncode(response);
+    std::string str =  ResponseEncode(response);
     SendHelper::GetInstance()->SendMessage(user_id, str, sate.beam_id);
 
 }
@@ -93,7 +94,7 @@ void MobileManager::ProcessLogout(const ControlHead *control_head) {
 void MobileManager::ProcessMobileRequest(const ControlHead *control_head) {
     uint32_t user_id = ntohl(control_head->from_id);
     MobileRequest *mobile_request = (MobileRequest*) (control_head->content);
-    uint8_t *pos = mobile_request->content;
+    uint8_t *pos = (uint8_t*) (mobile_request->content);
     Satellite sate;
     sate.grand_cover = *pos++;
     sate.sat_cover_num = *pos++;
@@ -123,7 +124,7 @@ void MobileManager::ProcessMobileRequest(const ControlHead *control_head) {
     }
     database_->UpdateSateCover(conn, user_id, sate);
     Connection_close(conn);
-    std::string str =  RequestEncode(response);
+    std::string str =  ResponseEncode(response);
     SendHelper::GetInstance()->SendMessage(user_id, str, sate.beam_id);
 }
 
