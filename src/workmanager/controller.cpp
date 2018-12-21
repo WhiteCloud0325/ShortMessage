@@ -70,7 +70,8 @@ bool Controller::Init(libconfig::Config &config) {
         return false;
     }
     user_manager_.Init(&database_);
-    message_manager_.Init(&database_, &qos_send_daemon_);
+    message_manager_.Init(&database_);
+    mobile_manager_.Init(&database_);
     LOG_INFO("Controller Init Success");
     return true;
 }

@@ -21,6 +21,7 @@ public:
 public:
     UserManager user_manager_;
     MessageManager message_manager_;
+    MobileManager mobile_manager_;
     QosSendDaemon qos_send_daemon_;
 private:
     boost::shared_ptr<apache::thrift::server::TServer>  server_;

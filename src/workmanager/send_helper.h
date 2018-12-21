@@ -4,7 +4,7 @@
 #include <libconfig.h++>
 #include <string>
 #include "thrift/LogicInterface.h"
-#include "tools/protocol.h"
+#include "logic/protocol.h"
 
 class SendHelper {
 public:
@@ -17,8 +17,7 @@ public:
         return instance_;
     }
     bool Init(libconfig::Setting &setting);
-    void SendMessageData(Protocol &p);
-    void SendData();
+    void SendMessage(const uint32_t user_id, const std::string &buf, std::vector<int32_t> &beams);
 private:
     SendHelper():access_port_(0){}
     static SendHelper* instance_;

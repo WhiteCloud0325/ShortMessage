@@ -1,5 +1,6 @@
 #include "LogicInterfaceHandler.h"
 #include "proto/im.pb.h"
+#include "logic/protocol.h"
 #include <string>
 
 using namespace im;
@@ -8,81 +9,37 @@ LogicInterfaceHandler::LogicInterfaceHandler(Controller* controller):
     controller_(controller) {
 }
 
-void LogicInterfaceHandler::SendMessage(const Request& message) {
-    if ( !message.__isset.type || !message.__isset.content) 
+void AccessToLogic(const std::string& request) {
+    if (request.emtpy()) {
         return;
-    int32_t type = message.type;
-    std::string request = message.content;
-    std::string response, to_ip;
-    int32_t to_type;
-    int64_t to_uid;
+    }
+    ControlHead* control_head = (ControlHead*)request.c_str();
 
-    switch (type) {
-        case REGISTER_REQUEST:
-            controller_->user_manager_.UserRegister(request, to_type, to_uid, response, to_ip);
+    switch (control_head->type) {
+        case Login:
+            controller_->mobile_manager_->ProcessLogin(control_head);
             break;
-        case REGISTER_RESPONSE:
+        case Logout:
+            controller_->mobile_manager_->ProcessLogout(control_head);
             break; 
-        case LOGIN_REQUEST:
-            controller_->user_manager_.UserAuth(request, to_type, to_uid, response, to_ip);
-            break; 
-        case LOGIN_RESPONSE:
+        case MOBILE_MANAGER_REQUEST:
+            controller_->mobile_manager_->ProcessMobileRequest(control_head);
             break;
-        case LOGOUT_REQUEST: 
+        case SIMPLE_MESSAGE:
+            controller_->message_manager_->ProcessSimpleMessage(control_head);
             break;
-        case FRIEND_LIST_REQUEST:
+        case FORWARD_NOACK_MESSAGE:
+            controller_->message_manager_->ProcessForwardNoAckMessage(control_head);
             break;
-        case FRIEND_LIST_RESPONSE: 
+        case BACKWARD_NOACK_MESSAGE:
+            controller->message_manager_->ProcessBackwardNoAckMessage(control_head);
             break;
-        case FRIEND_FIND_REQUEST:
+        case COMPLETE_MESSAGE:
+            controller->message_manager_->ProcessCompleteMessage(control_head);
             break;
-        case FRIEND_FIND_RESPONSE: 
+        case INQUIRE_MESSAGE_REQUEST:
             break;
-        case FRIEND_ADD_REQUEST:
-            break;
-        case FRIEND_ADD_RESPONSE: 
-            break;
-        case FRIEND_DELETE_REQUEST: 
-            break;
-        case FRIEND_DELETE_RESPONSE:  
-            break;
-        case GROUP_CREATE_REQUEST:
-            break;
-        case GROUP_CRAETE_RESPONSE: 
-            break;
-        case GROUP_ADDMEMBER_REQUEST: 
-            break;
-        case GROUP_ADDMEMBER_RESPONSE: 
-            break;
-        case GROUP_DELETEMEMBER_REQUEST: 
-            break;
-        case GROUP_DELETEMEMBER_RESPONSE: 
-            break;
-        case GROUP_DELETE_REQUEST: 
-            break;
-        case GROUP_DELETE_RESPONSE: 
-            break;
-        case GROUP_EXIT_REQUESET: 
-            break;
-        case GROUP_EXIT_RESPONSE: 
-            break;
-        case MESSAGE_FRIEND_SEND_REQUEST: 
-            controller_->message_manager_.ProcessC2SMessage(request);
-            break;
-        case MESSAGE_FRIEND_RESPONSE: 
-            controller_->message_manager_.ProcessACK(request);
-            break;
-        case MESSAGE_GROUP_SEND_REQUEST: 
-            break;
-        case MESSAGE_GROUP_SEND_RESPONSE: 
-            break;
-        case MESSAGE_FRIEND_NOTIFY_REQUEST: 
-            break;
-        case MESSAGE_FRIEND_NOTIFY_RESPONSE: 
-            break;
-        case MESSAGE_GROUP_NOTIFY_REQUEST:
-            break;
-        case MESSAGE_GROUP_NOTIFY_RESPONSE: 
+        case RECEIPTE:
             break;
         default:
             break;

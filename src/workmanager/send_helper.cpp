@@ -29,22 +29,17 @@ bool SendHelper::Init(libconfig::Setting &setting) {
     return true;
 }
 
-void SendHelper::SendMessageData(Protocol &p) {
+void SendHelper::SendMessage(const uint32_t user_id, const std::string &buf, std::vector<int32_t> &beams) {
     boost::shared_ptr<TSocket> client_socket(new TSocket(access_ip_, access_port_));
     boost::shared_ptr<TTransport> client_transport(new TBufferedTransport(client_socket));
     boost::shared_ptr<TProtocol> client_protocol(new TBinaryProtocol(client_transport));
     boost::shared_ptr<im::LogicInterfaceClient> client(new im::LogicInterfaceClient(client_protocol));
 
-    im::Response send;
-    send.__set_type(p.type);
-    send.__set_uid(p.uid);
-    send.__set_content(p.data_content);
-    send.__set_ip(std::to_string(p.ip));
+    im::AccessMessage send;
+    send.__set_uid(user_id);
+    send.__set_beam_id(beams);
+    send.__set_content(buf);
     client_transport->open();
     client->AckMessage(send);
     client_transport->close();
-}
-
-void SendHelper::SendData() {
-    
 }
