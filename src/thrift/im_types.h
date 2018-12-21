@@ -37,13 +37,13 @@ class AccessMessage {
   }
 
   virtual ~AccessMessage() throw();
-  int64_t uid;
+  int32_t uid;
   std::vector<int32_t>  beam_id;
   std::string content;
 
   _AccessMessage__isset __isset;
 
-  void __set_uid(const int64_t val);
+  void __set_uid(const int32_t val);
 
   void __set_beam_id(const std::vector<int32_t> & val);
 
