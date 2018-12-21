@@ -6,11 +6,10 @@
 using namespace im;
 class LogicInterfaceHandler: virtual public LogicInterfaceIf {
 public:
-    LogicInterfaceHandler(Controller *controller);
+   // LogicInterfaceHandler();
     virtual void AccessToLogic(const std::string& request){};
     virtual void LogicToAccess(const AccessMessage& response);
 private:
-    Controller *controller_;
 };
 
 

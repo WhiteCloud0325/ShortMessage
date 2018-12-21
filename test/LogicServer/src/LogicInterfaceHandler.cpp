@@ -5,17 +5,17 @@
 
 using namespace im;
 
-LogicInterfaceHandler::LogicInterfaceHandler(Controller* controller):
+/*LogicInterfaceHandler::LogicInterfaceHandler(Controller* controller):
     controller_(controller) {
-}
+}*/
 
 void LogicInterfaceHandler::LogicToAccess(const AccessMessage& response) {
     std::cout << "uid:" << response.uid << std::endl;;
-    std::cout << "beam:"
+    std::cout << "beam:";
     for (auto beam_id: response.beam_id) {
-        std::cout << beam_id << ", "
+        std::cout << beam_id << ", ";
     }
-    std::cout <<endl;
+    std::cout <<std::endl;
     ControlHead *control_head = (ControlHead*) response.content.c_str();
     switch (control_head->type) {
         case Login:
