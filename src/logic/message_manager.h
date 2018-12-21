@@ -1,18 +1,19 @@
 #ifndef message_manager_h_
 #define message_manager_h_
 #include "tools/database.h"
-#include "tools/qos_send_daemon.h"
+#include "logic/protocol.h"
 
 class MessageManager {
 public:
-    MessageManager(): database_(NULL),qos_send_daemon_(NULL) {}
+    MessageManager(): database_(NULL) {}
     ~MessageManager() {}
-    bool Init(Database *database, QosSendDaemon *qos_send_daemon);
-    void ProcessC2SMessage(const std::string &request);
-    void ProcessACK(const std::string &ack);
+    bool Init(Database *database);
+    void ProcessSimpleMessage(ControlHead *control_head);
+    void ProcessForwardNoAckMessage(ControlHead *control_head);
+    void ProcessBackwardNoAckMessage(ControlHead *control_head);
+    void ProcessCompleteMessage(ControlHead *control_head);
 private:
     Database *database_;
-    QosSendDaemon *qos_send_daemon_;
 };
 
 #endif /* define message_manager_h_ */
