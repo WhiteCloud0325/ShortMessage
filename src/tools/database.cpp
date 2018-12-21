@@ -1,5 +1,6 @@
 #include "tools/database.h"
 #include "tools/logger.h"
+#include <arpa/inet.h>
 
 const int MAX_BEAM_NUM = 10;
 bool Database::Init(const libconfig::Setting &setting) {
@@ -72,15 +73,12 @@ Connection_T Database::GetConnection() {
 /** UpdateNetworCover
  * function: 设置networkCover net_type 为1
  * params：
- *          @conn
- *          @user_id
- *          @ids
- * return: bool
+ *          @conn, Connetcion_T
+ *          @user_id, uint32_t
+ *          @sate_cover, Satellite
+ * return: bool, success true, fail false
 */
 bool Database::UpdateSateCover(Connection_T conn, const uint32_t &user_id, const Satellite& sate_cover) {
-    if (sate_cover.sat_cover_num == 0) {
-        return true;
-    } 
     std::vector<float> temp_snr(MAX_BEAM_NUM, -1);
     for (int i = 0; i < sate_cover.sat_cover_num; ++i) {
         temp_snr[sate_cover.beam_id[i] - 1] = sate_cover.snr[i];
@@ -102,107 +100,182 @@ bool Database::UpdateSateCover(Connection_T conn, const uint32_t &user_id, const
     return true;
 }
 
+/**
+ *  function: GetSateCover
+ *  params:
+ *          @conn: Connection_T
+ *          @user_id: uint32_t
+ *  return: vector<int32_t> 一组波束id 
+ *  注：考虑到thrift 列表时vector<int32_t> 为了方便这里也使用vector<int32_t>
+ */
 
 
-/*std::vector<> Database::SelectSateCover(Connection_T conn, const int64_t &user_id) {
-    int res = -1;
+std::vector<int32_t> Database::GetSateCover(Connection_T conn, const int32_t &user_id) {
+    std::vector<int32_t> res; 
     TRY {
-        PreparedStatement_T p = Connection_prepareStatement(conn, "SELECT sate_beam_id, SNR	FROM sate_cover WHERE user_id = ? and sate_type =1 ORDER BY SNR DESC LIMIT 1");
-        PreparedStatement_setLLong(p, 1, (long long)user_id);
+        PreparedStatement_T p = Connection_prepareStatement(conn, "SELECT SNR_1, SNR_2, SNR_3, SNR_4, SNR_5, SNR_6, SNR_7, SNR_8, SNR_9, SNR_10	 FROM sate_cover WHERE user_id = ?");
+        PreparedStatement_setInt(p, 1, (int)user_id);
+        ResultSet_T r = PreparedStatement_executeQuery(p);
+        if (ResultSet_next(r)) {
+             for (int i = 1; i <= MAX_BEAM_NUM; ++i) {
+                 double temp = ResultSet_getDouble(r, i);
+                 if (temp > 0) {
+                     res.push_back(i);
+                 }
+             }
+        }
+    }
+    CATCH(SQLException) {
+        LOG_INFO("Database SelectSateCover Failed: user_id=%lld||SQLException=%s", user_id, Connection_getLastError(conn));
+    }
+    END_TRY;
+    return res;
+}
+
+/**
+ *  function: GetOfflineMessageNum 从表message_cache获取to_user的离线消息数目
+ *  params：
+ *          @conn, Conneciont_T
+ *          @user_id, Connection_T conn
+ *  return: int ， 异常等都为0
+ */
+
+int Database::GetOfflineMessageNum(Connection_T conn, uint32_t &user_id) {
+    int res = 0;
+    TRY {
+        PreparedStatement_T p = Connection_prepareStatement(conn, "SELECT COUNT(*) FROM message_cache WHERE to_user = ?");
+        PreparedStatement_setInt(p, 1, (int)user_id);
         ResultSet_T r = PreparedStatement_executeQuery(p);
         if (ResultSet_next(r)) {
             res = ResultSet_getInt(r, 1);
         }
     }
     CATCH(SQLException) {
-        LOG_INFO("Database SelectSateCover Failed: user_id=%lld", user_id);
+        LOG_INFO("Database GetOfflineMessageNum Failed: user_id=%lld||SQLException=%s", user_id, Connection_getLastError(conn));
     }
     END_TRY;
     return res;
-}*/
-
-/**
- *  function: InserMessage 插入消息
- *  params:
- *      @conn
- *      @message
- *  return: int64_t, if success return insert msg_id
- *                   else return -1
- *  notes： PreparedStatement_setTimestamp是将time_t 转换为GMT时间戳
- */
-int64_t Database::InsertMessage(Connection_T conn, const int64_t &from_id, const int64_t &to_id, const std::string &content, const time_t &timestamp) {
-    int64_t msg_id = -1;
-    TRY {
-        PreparedStatement_T p = Connection_prepareStatement(conn, "INSERT INTO message_store(from_id, to_id, content, time) VALUES(?, ?, ?, ?)");
-        PreparedStatement_setLLong(p, 1, (long long) from_id);
-        PreparedStatement_setLLong(p, 2, (long long) to_id);
-        PreparedStatement_setString(p, 3, content.c_str());
-        PreparedStatement_setTimestamp(p, 4, timestamp);
-        PreparedStatement_execute(p);
-        msg_id = Connection_lastRowId(conn);
-    }
-    CATCH(SQLException) {
-        LOG_INFO("Database InsertMessage Failed: from_id=%lld||to_id=%lld", from_id, to_id);
-    }
-    END_TRY;
-    return msg_id;
 }
 
 /**
- *   function: GetOfflineMessage 获取离线消息
- *   params:
- *      @conn
- *      @
+ *  function: GetAllOfflineMessage 获取离线消息用于重传
+ *  params：
+ *          @conn, Connection_T
+ *          @time_t, 时间戳
+ *          @max_retry_num, 最大重试时间 int
  * 
- *   notes：ResultSet_getTimestamp是采用GMT时间转换
  */
-void Database::GetOfflineMessage(Connection_T conn, const int64_t &to_id, int limit_num) {
-    TRY {
-        PreparedStatement_T p = Connection_prepareStatement(conn, "SELECT msg_id, from_id, to_id, content, time FROM message_store WHERE to_id = ? and status = 0 LIMIT ?");
-        PreparedStatement_setLLong(p, 1, (long long)to_id);
-        PreparedStatement_setInt(p, 2, limit_num);
-        ResultSet_T r = PreparedStatement_executeQuery(p);
-        while (ResultSet_next(r)) {
-            int64_t msg_id = ResultSet_getLLong(r, 1);
-            int64_t from_id = ResultSet_getLLong(r, 2);
-            int64_t to_id = ResultSet_getLLong(r, 3);
-            std::string content = ResultSet_getString(r, 4);
-            time_t timestamp = ResultSet_getTimestamp(r, 5);
-        }
+
+
+
+
+/**
+ *  function: InsertStoreMessage 消息存储
+ *  params：
+ *          @conn, Connection_T
+ *          @control_head, ControlHead
+ *  return: int 插入的id
+ */ 
+int64_t Database::InsertStoreMessage(Connection_T conn, ControlHead* control_head) {
+    int64_t id = -1;
+    if (control_head == NULL) {
+        return id;
+    }
+    uint32_t to_id = ntohl(control_head->to_id);
+    uint32_t from_id = ntohl(control_head->from_id);
+    uint16_t frame_id = ntohs(control_head->frame_id);
+    time_t timestamp = time(NULL);
+    TRY{
+        PreparedStatement_T p = Connection_prepareStatement(conn, "INSERT INTO message_store(from_user, to_user, text, recv_time, frame_id) VALUES(?, ?, ?, ?, ?)");
+        PreparedStatement_setInt(p, 1, (int)from_id);
+        PreparedStatement_setInt(p, 2, (int)to_id);
+        PreparedStatement_setString(p, 3, control_head->content);
+        PreparedStatement_setTimestamp(p, 4, timestamp);
+        PreparedStatement_setInt(p, 5, (int)frame_id);
+        PreparedStatement_execute(p);
+        id = Connection_lastRowId(conn);
     }
     CATCH(SQLException) {
-        LOG_INFO("Database GetOfflineMessage Failed: to_id=%lld", to_id);
+        LOG_INFO("Database InsertStoreMessage Failed: from_id=%u||to_id=%u||frame_id=%u||SQLException=%s", from_id, to_id, frame_id, Connection_getLastError(conn));
+        return id;
     }
     END_TRY;
+    return id;
 }
 
-bool Database::SetStateMessage(Connection_T conn, const int64_t &msg_id) {
-    TRY {
-        PreparedStatement_T p = Connection_prepareStatement(conn, "Update message_store SET status = 1 WHERE msg_id = ?");
-        PreparedStatement_setLLong(p, 1, (long long) msg_id);
+/** function:InsertOfflineMessage 消息缓存
+ *  params：
+ *         @conn, Connetion)T
+ *         @control_head, ControlHead
+ *  return: bool
+ */ 
+bool Database::InsertOfflineMessage(Connection_T conn, ControlHead* control_head, const int64_t& id) {
+    if (control_head == NULL) {
+        return false;
+    }
+    uint32_t to_id = ntohl(control_head->to_id);
+    uint32_t from_id = ntohl(control_head->from_id);
+    uint16_t frame_id = ntohs(control_head->frame_id);
+    time_t timestamp = time(NULL);
+    TRY{
+        PreparedStatement_T p = Connection_prepareStatement(conn, "INSERT INTO message_cache(message_id, from_user, to_user, text, recv_time, frame_id, retry_time) VALUES(?, ?, ?, ?, ?, ?, ?)");
+        PreparedStatement_setLLong(p, 1, (long long)id);
+        PreparedStatement_setInt(p, 2, (int)from_id);
+        PreparedStatement_setInt(p, 3, (int)to_id);
+        PreparedStatement_setString(p, 4,  control_head->content);
+        PreparedStatement_setTimestamp(p, 5, timestamp);
+        PreparedStatement_setInt(p, 6, (int)frame_id);
+        PreparedStatement_setTimestamp(p, 7, timestamp + 10);
         PreparedStatement_execute(p);
     }
     CATCH(SQLException) {
-        LOG_INFO("SetStateMessage Exception: msg_id=%lld||Exception=%s", msg_id, Connection_getLastError(conn));
+        LOG_INFO("Database InsertOfflineMessage Failed: from_id=%u||to_id=%u||frame_id=%u||SQLException=%s", from_id, to_id, frame_id, Connection_getLastError(conn));
+        return false;
+    }
+    END_TRY;
+    return true;
+}
+
+/**
+ *  function:  DeleteOfflineMessage
+ *  params: 
+ *          @conn
+ *          @from_id
+ *          @to_id
+ *          @frame_id
+ */ 
+bool Database::DeleteOfflineMessage(Connection_T conn, const uint32_t &from_id, const uint32_t &to_id, const uint16_t frame_id) {
+    TRY{
+        PreparedStatement_T p = Connection_prepareStatement(conn, "DELETE FROM message_cache WHERE from_user = ? AND to_user = ? AND frame_id = ? ");
+        PreparedStatement_setInt(p, 1, (int)from_id);
+        PreparedStatement_setInt(p, 2, to_id);
+        PreparedStatement_setInt(p, 3, frame_id);
+        PreparedStatement_execute(p);
+    }
+    CATCH(SQLException) {
+        LOG_INFO("Database DeleteOfflineMessage Failed: from_id=%u||to_id=%u||frame_id=%u||SQLException=%s", from_id, to_id, frame_id, Connection_getLastError(conn));
+        return false;
+    }
+    END_TRY;
+    return true;
+}
+
+/**
+ *  function UpdateOfflineMessage
+ */ 
+void Database::UpdateOfflineMessage(Connection_T conn, const uint32_t &from_id, const uint32_t &to_id, const uint16_t frame_id, const int &retry_num, const time_t &timestamp) {
+    TRY{
+        PreparedStatement_T p = Connection_prepareStatement(conn, "UPDATE message_cache SET retry_num = ?, retry_time = ? WHERE from_user = ? AND to_user = ? AND frame_id = ?");
+        PreparedStatement_setInt(p, 1, retry_num);
+        PreparedStatement_setTimestamp(p, 2, timestamp);
+        PreparedStatement_setInt(p, 3, (int)from_id);
+        PreparedStatement_setInt(p, 4, (int)to_id);
+        PreparedStatement_setInt(p, 5, (int)frame_id);
+        PreparedStatement_execute(p);
+    }
+    CATCH(SQLException) {
+        LOG_INFO("Database UpdateOfflineMessage Failed: from_id=%u||to_id=%u||frame_id=%u||SQLException=%s", from_id, to_id, frame_id, Connection_getLastError(conn));
     }
     END_TRY;
 }
 
-bool Database::UserOnline(Connection_T conn, const int64_t &user_id) {
-    TRY{
-        PreparedStatement_T p = Connection_prepareStatement(conn, "SELECT state FROM t_user WHERE user_id = ?");
-        PreparedStatement_setLLong(p, 1, (long long) user_id);
-        ResultSet_T r = PreparedStatement_executeQuery(p);
-        if (ResultSet_next(r)) {
-            bool state = ResultSet_getInt(r, 1);
-            if (state) {
-                return true;
-            }   
-        }
-    }
-    CATCH(SQLException) {
-        LOG_INFO("Database UserOnline Exception: user_id=%lld", user_id);
-    }
-    END_TRY;
-    return false;
-}

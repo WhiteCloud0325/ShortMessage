@@ -16,12 +16,14 @@ public:
     bool Init(const libconfig::Setting &setting);
     ~Database();
     Connection_T GetConnection();
-    bool UpdateSateCover(Connection_T conn, const uint64_t &user_id, const Satellite& sate_cover);
-   // std::vector<uint8_t>  SelectSateCover(Connection_T conn, const int64_t &user_id);
-    int64_t InsertMessage(Connection_T conn, const int64_t &from_id, const int64_t &to_id, const std::string &content, const time_t &timestamp);
-    void GetOfflineMessage(Connection_T conn, const int64_t &to_id, int limit_num);
-    bool SetStateMessage(Connection_T conn, const int64_t &msg_id);
-    bool UserOnline(Connection_T conn, const int64_t &user_id);
+    bool UpdateSateCover(Connection_T conn, const uint32_t &user_id, const Satellite& sate_cover);
+    std::vector<int32_t>  GetSateCover(Connection_T conn, const int32_t &user_id);
+    int GetOfflineMessageNum(Connection_T conn, uint32_t &user_id);
+    int GetAllOfflineMessage(Connection_T conn);
+    int64_t InsertStoreMessage(Connection_T conn, ControlHead *control_head);
+    bool InsertOfflineMessage(Connection_T conn, ControlHead *control_head, const int64_t& id);
+    bool DeleteOfflineMessage(Connection_T conn, const uint32_t &from_id, const uint32_t &to_id, const uint16_t frame_id);
+    void UpdateOfflineMessage(Connection_T conn, const uint32_t &from_id, const uint32_t &to_id, const uint16_t frame_id, const int &retry_num, const time_t &timestamp);
 private:
     std::string host_name_;
     std::string user_;
