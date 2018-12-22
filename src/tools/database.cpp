@@ -280,7 +280,7 @@ void Database::UpdateOfflineMessage(Connection_T conn, const uint32_t &from_id, 
 void Database::GetAllOfflineMessage(Connection_T conn, const int &max_retry_num, const time_t &retry_interval, std::vector<MessageItem> &messages) {
     time_t cur_timestamp = time(NULL);
     TRY{
-        PreparedStatement_T p = Connection_prepareStatement(conn, "SELECT to_user, from_user, frame_id, type, text, retry_num FROM message_cache WHERE retry_num < ? AND retry_time >= ?");
+        PreparedStatement_T p = Connection_prepareStatement(conn, "SELECT to_user, from_user, frame_id, type, text, retry_num FROM message_cache WHERE retry_num < ? AND retry_time <= ?");
         PreparedStatement_setInt(p, 1, max_retry_num);
         PreparedStatement_setTimestamp(p, 2, cur_timestamp);
         ResultSet_T r = PreparedStatement_executeQuery(p);
@@ -313,7 +313,7 @@ void Database::GetAllOfflineMessage(Connection_T conn, const int &max_retry_num,
 /**
  *   IsExistUser:用户是否存在，表user_info
  */
-bool IsExistUser(Connection_T conn, const uint32_t &user_id) {
+bool Database::IsExistUser(Connection_T conn, const uint32_t &user_id) {
     bool res = true;
     TRY{
         PreparedStatement_T p = Connection_prepareStatement(conn, "SELECT * FROM user_info WHERE id = ?");

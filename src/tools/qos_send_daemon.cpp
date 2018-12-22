@@ -5,6 +5,8 @@
 #include <time.h>
 #include <unistd.h>
 #include <vector>
+#include <arpa/inet.h>
+#include <iostream>
 QosSendDaemon::QosSendDaemon(): stop_(false),
                                 max_retry_count_(0),
                                 check_interval_(0),
@@ -46,10 +48,12 @@ void QosSendDaemon::Start() {
         std::vector<MessageItem> messages;
         database_->GetAllOfflineMessage(conn, max_retry_count_, msg_interval_, messages);
         for(auto &message: messages) {
-            std::vector<int32_t> beams = database_->GetSateCover(conn, message.to_id);
+            uint32_t user_id = message.to_id;
+            std::vector<int32_t> beams = database_->GetSateCover(conn, user_id);
             if (beams.empty()) {
                 continue;
             }
+            std::cout << user_id << std::endl;
             std::string str = MessageEncode(message);
             SendHelper::GetInstance()->SendMessage(message.to_id, str, beams);
         }
