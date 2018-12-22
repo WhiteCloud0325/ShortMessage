@@ -133,7 +133,14 @@ struct MesaageInquireRequest {
 #pragma pack(pop)//恢复对齐状态
 
 
-
+struct MessageItem {
+    uint32_t to_id;
+    uint32_t from_id;
+    uint16_t frame_id;
+    uint8_t type;
+    uint8_t retain;
+    std::string content;
+};
 
 
 #endif /* define Protocol*/
