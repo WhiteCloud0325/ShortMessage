@@ -36,3 +36,20 @@ std::string MessageEncode(const ControlHead* control_head) {
     std::string res(buf, pos - buf);
     return res;
 }
+
+std::string MessageEncode(const MessageItem &message) {
+    char buf[1024] = {0};
+    char *pos = buf;
+    *(uint32_t*)pos = message.to_id;
+    pos +=4;
+    *(uint32_t*)pos = message.from_id;
+    pos +=4;
+    *(uint16_t*)pos = message.frame_id;
+    pos +=2;
+    *(uint8_t*)pos++ = message.type;
+    *(uint8_t*)pos++ = message.retain;
+    strcpy(pos, message.content.c_str());
+    pos += message.content.size() + 1;
+    std::string res(buf, pos - buf);
+    return res;
+}
