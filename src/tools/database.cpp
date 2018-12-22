@@ -158,18 +158,6 @@ int Database::GetOfflineMessageNum(Connection_T conn, uint32_t &user_id) {
 }
 
 /**
- *  function: GetAllOfflineMessage 获取离线消息用于重传
- *  params：
- *          @conn, Connection_T
- *          @time_t, 时间戳
- *          @max_retry_num, 最大重试时间 int
- * 
- */
-
-
-
-
-/**
  *  function: InsertStoreMessage 消息存储
  *  params：
  *          @conn, Connection_T
@@ -186,12 +174,13 @@ int64_t Database::InsertStoreMessage(Connection_T conn, ControlHead* control_hea
     uint16_t frame_id = ntohs(control_head->frame_id);
     time_t timestamp = time(NULL);
     TRY{
-        PreparedStatement_T p = Connection_prepareStatement(conn, "INSERT INTO message_store(from_user, to_user, text, recv_time, frame_id) VALUES(?, ?, ?, ?, ?)");
+        PreparedStatement_T p = Connection_prepareStatement(conn, "INSERT INTO message_store(from_user, to_user, text, recv_time, frame_id, type) VALUES(?, ?, ?, ?, ?, ?)");
         PreparedStatement_setInt(p, 1, (int)from_id);
         PreparedStatement_setInt(p, 2, (int)to_id);
         PreparedStatement_setString(p, 3, control_head->content);
         PreparedStatement_setTimestamp(p, 4, timestamp);
         PreparedStatement_setInt(p, 5, (int)frame_id);
+        PreparedStatement_setInt(p, 6, (int) control_head->type);
         PreparedStatement_execute(p);
         id = Connection_lastRowId(conn);
     }
@@ -218,14 +207,15 @@ bool Database::InsertOfflineMessage(Connection_T conn, ControlHead* control_head
     uint16_t frame_id = ntohs(control_head->frame_id);
     time_t timestamp = time(NULL);
     TRY{
-        PreparedStatement_T p = Connection_prepareStatement(conn, "INSERT INTO message_cache(message_id, from_user, to_user, text, recv_time, frame_id, retry_time) VALUES(?, ?, ?, ?, ?, ?, ?)");
+        PreparedStatement_T p = Connection_prepareStatement(conn, "INSERT INTO message_cache(message_id, from_user, to_user, type, text, recv_time, frame_id, retry_time) VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
         PreparedStatement_setLLong(p, 1, (long long)id);
         PreparedStatement_setInt(p, 2, (int)from_id);
         PreparedStatement_setInt(p, 3, (int)to_id);
-        PreparedStatement_setString(p, 4,  control_head->content);
-        PreparedStatement_setTimestamp(p, 5, timestamp);
-        PreparedStatement_setInt(p, 6, (int)frame_id);
-        PreparedStatement_setTimestamp(p, 7, timestamp + 10);
+        PreparedStatement_setInt(p, 4, (int) control_head->type);
+        PreparedStatement_setString(p, 5,  control_head->content);
+        PreparedStatement_setTimestamp(p, 6, timestamp);
+        PreparedStatement_setInt(p, 7, (int)frame_id);
+        PreparedStatement_setTimestamp(p, 8, timestamp + 10);
         PreparedStatement_execute(p);
     }
     CATCH(SQLException) {
@@ -275,6 +265,47 @@ void Database::UpdateOfflineMessage(Connection_T conn, const uint32_t &from_id, 
     }
     CATCH(SQLException) {
         LOG_INFO("Database UpdateOfflineMessage Failed: from_id=%u||to_id=%u||frame_id=%u||SQLException=%s", from_id, to_id, frame_id, Connection_getLastError(conn));
+    }
+    END_TRY;
+}
+
+/**
+ *  function: GetAllOfflineMessage 获取离线消息用于重传
+ *  params：
+ *          @conn, Connection_T
+ *          @max_retry_num, 最大重试时间 int
+ *          @time_t, 时间戳
+ * 
+ */
+void Database::GetAllOfflineMessage(Connection_T conn, const int &max_retry_num, const time_t &retry_interval, std::vector<MessageItem> &messages) {
+    time_t cur_timestamp = time(NULL);
+    TRY{
+        PreparedStatement_T p = Connection_prepareStatement(conn, "SELECT to_user, from_user, frame_id, type, text, retry_num FROM message_cache WHERE retry_num < ? AND retry_time >= ?");
+        PreparedStatement_setInt(p, 1, max_retry_num);
+        PreparedStatement_setTimestamp(p, 2, cur_timestamp);
+        ResultSet_T r = PreparedStatement_executeQuery(p);
+        while(ResultSet_next(r)) {
+            MessageItem message;
+            message.to_id = ResultSet_getInt(r, 1);
+            message.from_id = ResultSet_getInt(r, 2);
+            message.frame_id = ResultSet_getInt(r, 3);
+            message.type = ResultSet_getInt(r, 4);
+            message.retain = 0x00;
+            message.content = std::string(ResultSet_getString(r, 5));
+            int retry_num = ResultSet_getInt(r, 6);
+            ++retry_num;
+            messages.push_back(message);
+            PreparedStatement_T pu = Connection_prepareStatement(conn, "UPDATE message_cache SET retry_num = ?, retry_time = ? WHERE to_user = ? AND from_user = ? AND frame_id = ?");
+            PreparedStatement_setInt(pu, 1, retry_num);
+            PreparedStatement_setTimestamp(pu, 2, cur_timestamp + retry_num * retry_interval);
+            PreparedStatement_setInt(pu, 3, (int)message.to_id);
+            PreparedStatement_setInt(pu, 4, (int)message.from_id);
+            PreparedStatement_setInt(pu, 5, (int)message.frame_id);
+            PreparedStatement_execute(pu);
+        }
+    }
+    CATCH(SQLException) {
+        LOG_INFO("Database GetAllOfflineMessage Failed: SQLException=%s", Connection_getLastError(conn));
     }
     END_TRY;
 }
