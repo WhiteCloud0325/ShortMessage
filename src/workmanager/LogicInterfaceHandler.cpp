@@ -1,7 +1,7 @@
 #include "LogicInterfaceHandler.h"
 #include "logic/protocol.h"
 #include <string>
-
+#include <iostream>
 using namespace im;
 
 LogicInterfaceHandler::LogicInterfaceHandler(Controller* controller):
@@ -13,7 +13,7 @@ void LogicInterfaceHandler::AccessToLogic(const std::string& request) {
         return;
     }
     ControlHead* control_head = (ControlHead*)request.c_str();
-
+    std::cout << (int) control_head->type << std::endl;
     switch (control_head->type) {
         case Login:
             controller_->mobile_manager_.ProcessLogin(control_head);
