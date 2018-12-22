@@ -310,3 +310,27 @@ void Database::GetAllOfflineMessage(Connection_T conn, const int &max_retry_num,
     END_TRY;
 }
 
+/**
+ *   IsExistUser:用户是否存在，表user_info
+ */
+bool IsExistUser(Connection_T conn, const uint32_t &user_id) {
+    bool res = true;
+    TRY{
+        PreparedStatement_T p = Connection_prepareStatement(conn, "SELECT * FROM user_info WHERE id = ?");
+        PreparedStatement_setInt(p, 1, (int)user_id);
+        ResultSet_T r = PreparedStatement_executeQuery(p);
+        if (ResultSet_next(r)) {
+            res = true;
+        }
+        else {
+            res = false;
+        }
+    }
+    CATCH(SQLException) {
+        LOG_INFO("Database IsExistUser Failed: user_id=%u||SQLException=%s", user_id, Connection_getLastError(conn));
+        res = false;
+    }
+    END_TRY;
+    return res;
+
+}

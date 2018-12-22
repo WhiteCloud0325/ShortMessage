@@ -42,22 +42,28 @@ void MobileManager::ProcessLogin(const ControlHead* control_head) {
     if (conn == NULL) {
         return;
     }
-    bool res = database_->UpdateSateCover(conn, user_id, sate);
+    bool res = database_->IsExistUser(conn, user_id);
     if (res) {
-        response.receipt_type = 0x00;
-        int num = database_->GetOfflineMessageNum(conn, user_id);
-        if (num >= 0 && num < 255) {
-            response.receipt_indicate = (uint8_t)num;
+        res = database_->UpdateSateCover(conn, user_id, sate);
+        if (res) {
+            response.receipt_type = 0x00;
+            int num = database_->GetOfflineMessageNum(conn, user_id);
+            if (num >= 0 && num < 255) {
+                response.receipt_indicate = (uint8_t)num;
+            }
+            else {
+                response.receipt_indicate = 0xFF;
+            }
         }
         else {
-            response.receipt_indicate = 0xFF;
+            response.receipt_type = 0x01;
+            response.receipt_indicate = 0x00;
         }
-    }
+    } 
     else {
         response.receipt_type = 0x01;
         response.receipt_indicate = 0x00;
     }
-
     Connection_close(conn);
     std::string str =  ResponseEncode(response);
     SendHelper::GetInstance()->SendMessage(user_id, str, sate.beam_id);
