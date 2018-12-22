@@ -30,13 +30,13 @@ void MessageManager::ProcessSimpleMessage(ControlHead *control_head) {
         Connection_close(conn);
         return;
     }
-    database_->InsertOfflineMessage(conn, control_head, id);
     std::vector<int32_t> beams = database_->GetSateCover(conn, to_id);
     Connection_close(conn);
     if (!beams.empty()) {
         std::string str = MessageEncode(control_head);
         SendHelper::GetInstance()->SendMessage(to_id, str, beams);
     }
+    
     return;
 }
 
@@ -45,4 +45,20 @@ void MessageManager::ProcessForwardNoAckMessage(ControlHead *control_head) {
 void MessageManager::ProcessBackwardNoAckMessage(ControlHead *control_head) {
 }
 void MessageManager::ProcessCompleteMessage(ControlHead *control_head) {
+    uint32_t to_id = ntohl(control_head->to_id);
+
+    Connection_T conn = database_->GetConnection();
+    if (conn == NULL) {
+        return;
+    }
+
+    int64_t id = database_->InsertStoreMessage(conn, control_head);
+    database_->InsertOfflineMessage(conn, control_head, id);
+    std::vector<int32_t> beams = database_->GetSateCover(conn, to_id);
+    Connection_close(conn);
+    if (!beams.empty()) {
+        std::string str = MessageEncode(control_head);
+        SendHelper::GetInstance()->SendMessage(to_id, str, beams);
+    }
+    return;
 }
