@@ -58,9 +58,6 @@ set(LIBBOOST_MODULE "${PROJECT_DIR}/lib/libboost")
 set(LIBBOOST_MODULE_INCLUDE ${LIBBOOST_MODULE}/include)
 file(GLOB_RECURSE LIBBOOST_MODULE_LIB "${LIBBOOST_MODULE}/lib/*.a")
 
-set(LIBTBB_MODULE "${PROJECT_DIR}/lib/libtbb")
-set(LIBTBB_MODULE_INCLUDE ${LIBTBB_MODULE}/include)
-file(GLOB_RECURSE LIBTBB_MODULE_LIB ${LIBTBB_MODULE}/lib/*.so.2)
 
 include_directories(
     src/
@@ -73,7 +70,6 @@ include_directories(
     ${LIBEVENT_MODULE_INCLUDE}
     ${LIBTHRIFT_MODULE_INCLUDE}
     ${LIBBOOST_MODULE_INCLUDE}
-    ${LIBTBB_MODULE_INCLUDE}
     )
 
 add_executable(server ${SERVICE_SOURCES})
@@ -88,7 +84,6 @@ target_link_libraries(server
     ${LIBTHRIFT_NB_MODULE_LIB}
     ${LIBBOOST_MODULE_LIB}
     ${LIBEVENT_MODULE_LIB}
-    ${LIBTBB_MODULE_LIB}
     pthread
     rt
     dl

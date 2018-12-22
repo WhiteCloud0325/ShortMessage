@@ -1,5 +1,7 @@
 #include "tools/qos_send_daemon.h"
 #include "tools/logger.h"
+#include "logic/coder.h"
+#include "workmanager/send_helper.h"
 #include <time.h>
 #include <unistd.h>
 #include <vector>
@@ -44,12 +46,12 @@ void QosSendDaemon::Start() {
         std::vector<MessageItem> messages;
         database_->GetAllOfflineMessage(conn, max_retry_count_, msg_interval_, messages);
         for(auto &message: messages) {
-            std::vector<int32_t> beams = GetSateCover(conn, message.to_id);
+            std::vector<int32_t> beams = database_->GetSateCover(conn, message.to_id);
             if (beams.empty()) {
                 continue;
             }
             std::string str = MessageEncode(message);
-            SendHelper::SendMessage(message.to_id, str, beams);
+            SendHelper::GetInstance()->SendMessage(message.to_id, str, beams);
         }
         Connection_close(conn);
         sleep(check_interval_);
