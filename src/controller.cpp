@@ -123,7 +123,7 @@ void Controller::HandleEvent(int socket_fd) {
             DelObservedClient(socket_fd);
         }
         else{
-            std::cout << "package num: " << complete_packet_num << std::endl; 
+            //std::cout << "package num: " << complete_packet_num << std::endl; 
             char* read_pos = recv_buffer;
             for (int i = 0; i < complete_packet_num; i++){//get all complete packets in buffer
                 int packet_len = *(int*)read_pos;
@@ -143,10 +143,6 @@ void Controller::ProcessMessage() {
         memset(buf, 0 ,1024);
         len = 0;
         fifo_queue_.PopPacket(buf, &len);
-        for (uint16_t i = 0; i < len; ++i) {
-            printf("%x", *(buf+len));
-        }
-        printf("\n");
         if (len >= 40) {
             char *pos = buf;
             uint32_t to_id = *(uint32_t*)pos;
