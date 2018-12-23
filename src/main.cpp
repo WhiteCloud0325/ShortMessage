@@ -36,10 +36,11 @@ int main() {
         LOG_INFO("Controller Init Failed");
         return -1;
     }
-
+    boost::thread run_thread(boost::bind(&Controller::Start, &controller));
     while(!stopped) {
         usleep(1000000);
     }
-
+    controller.Stop();
+    run_thread.join();
     return 0;
 }

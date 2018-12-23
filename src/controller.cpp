@@ -54,7 +54,7 @@ bool Controller::Init(const libconfig::Config &config) {
         return false;
     }
     epoll_.AddEvent(server_socket_.socket_fd(), EPOLLIN);
-
+    observed_client_.insert(std::pair<int, CommonSocket*>(server_socket_.socket_fd(), &server_socket_));
     LOG_INFO("Controller Init Success");
     return true;
 
@@ -123,6 +123,7 @@ void Controller::HandleEvent(int socket_fd) {
             DelObservedClient(socket_fd);
         }
         else{
+            std::cout << "package num: " << complete_packet_num << std::endl; 
             char* read_pos = recv_buffer;
             for (int i = 0; i < complete_packet_num; i++){//get all complete packets in buffer
                 int packet_len = *(int*)read_pos;
@@ -137,17 +138,21 @@ void Controller::HandleEvent(int socket_fd) {
 
 void Controller::ProcessMessage() {
     char buf[1024];
-    int len = 0;
-    while(!stop) {
+    uint16_t len = 0;
+    while(!stop_) {
         memset(buf, 0 ,1024);
         len = 0;
         fifo_queue_.PopPacket(buf, &len);
-        if (len) {
+        for (uint16_t i = 0; i < len; ++i) {
+            printf("%x", *(buf+len));
+        }
+        printf("\n");
+        if (len >= 40) {
             char *pos = buf;
             uint32_t to_id = *(uint32_t*)pos;
             pos += 28;
             *(uint32_t*)pos = to_id;
-            std::string message(pos);
+            std::string message(pos, len - 28);
             SendHelper::GetInstance()->SendMessage(message);
         }
     }

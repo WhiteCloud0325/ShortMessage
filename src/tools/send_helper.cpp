@@ -1,4 +1,4 @@
-#include "workmanager/send_helper.h"
+#include "tools/send_helper.h"
 #include "tools/logger.h"
 #include <boost/shared_ptr.hpp>
 #include <thrift/Thrift.h>
@@ -31,7 +31,7 @@ bool SendHelper::Init(libconfig::Setting &setting) {
 
 void SendHelper::SendMessage(const std::string &buf) {
     try {
-        boost::shared_ptr<TSocket> client_socket(new TSocket(access_ip_, access_port_));
+        boost::shared_ptr<TSocket> client_socket(new TSocket(logic_ip_, logic_port_));
         boost::shared_ptr<TTransport> client_transport(new TBufferedTransport(client_socket));
         boost::shared_ptr<TProtocol> client_protocol(new TBinaryProtocol(client_transport));
         boost::shared_ptr<im::LogicInterfaceClient> client(new im::LogicInterfaceClient(client_protocol));
