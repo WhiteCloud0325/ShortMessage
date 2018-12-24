@@ -65,8 +65,8 @@ struct SendMessage {
 #pragma pack(push) 
 #pragma pack(1)
 struct ControlHead {
-    uint32_t to_id;
     uint32_t from_id;
+    uint32_t to_id;
     uint16_t frame_id;
     uint8_t type;
     uint8_t retain;
