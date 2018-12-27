@@ -43,11 +43,17 @@ int main(int argc, char* argv[]) {
         LOG_INFO("Controller Init Failed");
         return -1;
     }
-    boost::thread run_thread(boost::bind(&Controller::Start, &controller));
+    boost::thread t1(boost::bind(&Controller::ProcessEpollEvent, &controller));
+    boost::thread t2(boost::bind(&Controller::ProcessMessageFromLogic, &controller));
+    boost::thread t3(boost::bind(&Controller::ProcessSchedule, &controller));
+    boost::thread t4(boost::bind(&Controller::ProcessMessageFromSate, &controller));
     while(!stopped) {
         usleep(1000000);
     }
     controller.Stop();
-    run_thread.join();
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
     return 0;
 }

@@ -33,6 +33,11 @@ public:
      */ 
     void ProcessMessageFromSate();
 
+    /**
+     * Get string from Logic
+     */ 
+    void ProcessMessageFromLogic();
+
 private:
     void Controller::HandleEvent(int socket_fd);
     void AddObservedClient(int socket_fd);

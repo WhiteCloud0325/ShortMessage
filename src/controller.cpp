@@ -20,7 +20,6 @@ Controller::~Controller(){
     if (!stop_) {
         Stop();
     }
-    stop_ = false;
 }
 
 bool Controller::Init(const libconfig::Config &config, const std::string beam_id) {
@@ -209,6 +208,10 @@ void Controller::ProcessSchedule() {
         } 
         //TODO 定时
     }
+}
+
+void Controller::ProcessMessageFromLogic() {
+    server_-serve();
 }
 
 
