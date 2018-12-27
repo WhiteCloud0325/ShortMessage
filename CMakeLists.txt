@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.6)
-project (ScheduleService)
+project (SchedulerService)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 set(CMAKE_CXX_FLAGS "-pipe -g -std=c++0x -W -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-reorder -fPIC")
@@ -55,9 +55,9 @@ include_directories(
     ${LIBBOOST_MODULE_INCLUDE}
     )
 
-add_executable(schedule-service ${SERVICE_SOURCES})
+add_executable(scheduler-service  ${SERVICE_SOURCES})
 
-target_link_libraries(schedule-service
+target_link_libraries(scheduler-service
     ${LIBCONFIG_MODULE_LIB}
     ${LIBLOG4CPLUS_MODULE_LIB}
     ${LIBTHRIFT_MODULE_LIB}

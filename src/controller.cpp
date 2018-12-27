@@ -18,13 +18,12 @@ using namespace apache::thrift::transport;
 using namespace apache::thrift::server;
 
 Controller::Controller(): stop_(false),
-                          logic_port_(0),
                           write_timeout_(100),
                           read_timeout_(100),
                           thread_cnt_(20),
                           beam_id_(0),
                           tcp_port_(0),
-                          thrift_port_(0) {
+                          thrift_port_(0){
 
 }
 

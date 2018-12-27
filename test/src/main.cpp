@@ -55,6 +55,7 @@ int main() {
     tcp_socket.Create();
     tcp_socket.Connect("162.105.85.118", 12001);
     char recv_buf[1024] = {0};
+    int recv_len = 0;
     while(!stopped) {
         int complete_packet_num = tcp_socket.RecvPacket(recv_buf, &recv_len);
         if (complete_packet_num < 0){ //receive failed or not receive 1 or more complete packet
@@ -71,12 +72,14 @@ int main() {
                 uint32_t uid = *(uint32_t*)read_pos;
                 uid = ntohl(uid);
                 uint32_t tid = *(uint32_t*)(read_pos + 32);
+                tid = ntohl(tid);
                 uint16_t fid = *(uint16_t*)(read_pos + 36);
+                fid = ntohs(fid);
                 uint8_t type = *(uint8_t*)(read_pos + 38);
                 cout << uid << endl;
                 cout << tid << endl;
                 cout << fid << endl;
-                cout << type << endl;
+                cout << (int)type << endl;
                 read_pos += packet_len;
             }
         }
