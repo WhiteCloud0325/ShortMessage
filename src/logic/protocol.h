@@ -83,12 +83,23 @@ struct MobileRequest {
     char content[];  //cover
 };
 
+struct SateParam{
+    SateParam():sate_id(0), beam_id(0), snr(0){}
+    SateParam(int32_t sate_id_, int32_t beam_id_, int32_t snr_): sate_id(sate_id_), beam_id(beam_id_), snr(snr_){}
+    SateParam(const SateParam &rhs) {
+        this->sate_id = rhs.sate_id;
+        this->beam_id = rhs.beam_id;
+        this->snr = rhs.snr;
+    }
+    int32_t sate_id;
+    int32_t beam_id;
+    float snr;
+};
+
 struct Satellite{
     uint8_t grand_cover; //地面覆盖 0x00：无地面网络覆盖,0x01：有地面网络覆盖
     uint8_t sat_cover_num;
-    std::vector<int32_t> sat_id;
-    std::vector<int32_t> beam_id;
-    std::vector<float> snr;
+    std::vector<SateParam> sates_param;
 };
 
 struct Response {
@@ -110,7 +121,7 @@ struct MessageReceiptItem{
 };
 struct MessageResponse {
     uint64_t to_id;
-    uint64_t fromt_id;
+    uint64_t from_id;
     uint16_t frame_id;
     uint8_t type;
     uint8_t retain;  

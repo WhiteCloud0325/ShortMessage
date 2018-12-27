@@ -15,12 +15,26 @@ SendHelper* SendHelper::instance_ = NULL;
 
 bool SendHelper::Init(libconfig::Setting &setting) {
     try {
-        if (!setting.lookupValue("port", access_port_)) {
+        int num = setting.getLength();
+        if (num < 0) {
             return false;
         }
-        if (!setting.lookupValue("ip", access_ip_)) {
-            return false;
+        for (int i = 0; i < num; ++i) {
+            const Setting &addr = setting[i];
+            Address address;
+            int id = 0;
+            if (!addr.lookupValue("beamid", id)) {
+                return false;
+            }
+            if (!addr.lookupValue("port", address.port)) {
+                return false;
+            }
+            if (!addr.lookupValue("ip", address.ip)) {
+                return false;
+            }
+            schedule_address_.insert(std::make_pair(id, address));
         }
+        
     }
     catch (...) {
         LOG_INFO("SendHelper Init Exception");
@@ -29,7 +43,8 @@ bool SendHelper::Init(libconfig::Setting &setting) {
     return true;
 }
 
-void SendHelper::SendMessage(const uint32_t user_id, const std::string &buf, std::vector<int32_t> &beams) {
+void SendHelper::SendMessage(const uint32_t user_id, const std::string &buf, std::vector<SateParam> &sates) {
+    
     try {
         im::AccessMessage send;
         send.__set_uid(user_id);

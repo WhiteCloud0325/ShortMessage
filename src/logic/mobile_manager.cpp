@@ -23,10 +23,12 @@ void MobileManager::ProcessLogin(const ControlHead* control_head) {
         return;
     }
     for(int i = 0; i < sate.sat_cover_num; ++i) {
-        sate.sat_id.push_back(int32_t (*pos++));
-        sate.beam_id.push_back(int32_t (*pos++));
-        sate.snr.push_back(*(float*)pos);
+        SateParam sate_param;
+        sate_param.sate_id = (int32_t) *pos++;
+        sate_param.beam_id = (int32_t) *pos++;
+        sate_param.snr = *(float*)pos;
         pos+=4;
+        sate.sates_param.push_back(sate_param);
     }
     
     Response response;
@@ -66,7 +68,7 @@ void MobileManager::ProcessLogin(const ControlHead* control_head) {
     }
     Connection_close(conn);
     std::string str =  ResponseEncode(response);
-    SendHelper::GetInstance()->SendMessage(user_id, str, sate.beam_id);
+    SendHelper::GetInstance()->SendMessage(user_id, str, sate.sates_param);
 
 }
 
@@ -89,11 +91,11 @@ void MobileManager::ProcessLogout(const ControlHead *control_head) {
     if (conn == NULL) {
         return;
     }
-    std::vector<int32_t> beams = database_->GetSateCover(conn, user_id);
+    std::vector<SateParam> sates = database_->GetSateCover(conn, user_id);
     database_->UpdateSateCover(conn, user_id, sate);
     Connection_close(conn);
     std::string str = ResponseEncode(response);
-    SendHelper::GetInstance()->SendMessage(user_id, str, beams);
+    SendHelper::GetInstance()->SendMessage(user_id, str, sates);
 
 }
 
@@ -109,10 +111,12 @@ void MobileManager::ProcessMobileRequest(const ControlHead *control_head) {
         return;
     }
     for(int i = 0; i < sate.sat_cover_num; ++i) {
-        sate.sat_id.push_back(int32_t (*pos++));
-        sate.beam_id.push_back(int32_t (*pos++));
-        sate.snr.push_back(*(float*)pos);
+        SateParam sate_param;
+        sate_param.sate_id = (int32_t) *pos++;
+        sate_param.beam_id = (int32_t) *pos++;
+        sate_param.snr = *(float*)pos;
         pos+=4;
+        sate.sates_param.push_back(sate_param);
     }
     
     Response response;
@@ -131,7 +135,7 @@ void MobileManager::ProcessMobileRequest(const ControlHead *control_head) {
     database_->UpdateSateCover(conn, user_id, sate);
     Connection_close(conn);
     std::string str =  ResponseEncode(response);
-    SendHelper::GetInstance()->SendMessage(user_id, str, sate.beam_id);
+    SendHelper::GetInstance()->SendMessage(user_id, str, sate.sates_param);
 }
 
 

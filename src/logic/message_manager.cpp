@@ -30,11 +30,11 @@ void MessageManager::ProcessSimpleMessage(ControlHead *control_head) {
         Connection_close(conn);
         return;
     }
-    std::vector<int32_t> beams = database_->GetSateCover(conn, to_id);
+    std::vector<SateParam> sates = database_->GetSateCover(conn, to_id);
     Connection_close(conn);
-    if (!beams.empty()) {
+    if (!sates.empty()) {
         std::string str = MessageEncode(control_head);
-        SendHelper::GetInstance()->SendMessage(to_id, str, beams);
+        SendHelper::GetInstance()->SendMessage(to_id, str, sates);
     }
     
     return;
@@ -54,11 +54,11 @@ void MessageManager::ProcessCompleteMessage(ControlHead *control_head) {
 
     int64_t id = database_->InsertStoreMessage(conn, control_head);
     database_->InsertOfflineMessage(conn, control_head, id);
-    std::vector<int32_t> beams = database_->GetSateCover(conn, to_id);
+    std::vector<SateParam> sates = database_->GetSateCover(conn, to_id);
     Connection_close(conn);
-    if (!beams.empty()) {
+    if (!sates.empty()) {
         std::string str = MessageEncode(control_head);
-        SendHelper::GetInstance()->SendMessage(to_id, str, beams);
+        SendHelper::GetInstance()->SendMessage(to_id, str, sates);
     }
     return;
 }

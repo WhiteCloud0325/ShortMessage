@@ -5,6 +5,18 @@
 #include <string>
 #include "thrift/LogicInterface.h"
 #include "logic/protocol.h"
+#include <map>
+
+struct Address{
+    Address(){}
+    Address(int port_, const std::string &ip_):port(port_), ip(ip_){}
+    Address(const Address &address){
+        this->port = address.port;
+        this->ip = address.ip;
+    }
+    std::string ip;
+    int port;
+};
 
 class SendHelper {
 public:
@@ -17,13 +29,12 @@ public:
         return instance_;
     }
     bool Init(libconfig::Setting &setting);
-    void SendMessage(const uint32_t user_id, const std::string &buf, std::vector<int32_t> &beams);
+    void SendMessage(const uint32_t user_id, const std::string &buf, std::vector<SateParam> &sates);
 private:
     SendHelper():access_port_(0){}
     static SendHelper* instance_;
 private:
-    int access_port_;
-    std::string access_ip_;
+    std::map<int, Address> schedule_address_;
 };
 
 

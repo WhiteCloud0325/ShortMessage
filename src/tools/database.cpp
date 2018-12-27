@@ -81,7 +81,7 @@ Connection_T Database::GetConnection() {
 bool Database::UpdateSateCover(Connection_T conn, const uint32_t &user_id, const Satellite& sate_cover) {
     std::vector<float> temp_snr(MAX_BEAM_NUM, -1);
     for (int i = 0; i < sate_cover.sat_cover_num; ++i) {
-        temp_snr[sate_cover.beam_id[i] - 1] = sate_cover.snr[i];
+        temp_snr[sate_cover.sates_param[i].beam_id - 1] = sate_cover.sates_param[i].snr;
     } 
     std::string sql = "UPDATE sate_cover SET ";
     for (int i = 1; i <= MAX_BEAM_NUM; ++i) {
@@ -110,8 +110,8 @@ bool Database::UpdateSateCover(Connection_T conn, const uint32_t &user_id, const
  */
 
 
-std::vector<int32_t> Database::GetSateCover(Connection_T conn, const int32_t &user_id) {
-    std::vector<int32_t> res; 
+std::vector<SateParam> Database::GetSateCover(Connection_T conn, const int32_t &user_id) {
+    std::vector<SateParam> res; 
     TRY {
         PreparedStatement_T p = Connection_prepareStatement(conn, "SELECT SNR_1, SNR_2, SNR_3, SNR_4, SNR_5, SNR_6, SNR_7, SNR_8, SNR_9, SNR_10	 FROM sate_cover WHERE user_id = ?");
         PreparedStatement_setInt(p, 1, (int)user_id);
@@ -120,7 +120,7 @@ std::vector<int32_t> Database::GetSateCover(Connection_T conn, const int32_t &us
              for (int i = 1; i <= MAX_BEAM_NUM; ++i) {
                  double temp = ResultSet_getDouble(r, i);
                  if (temp > 0) {
-                     res.push_back(i);
+                     res.push_back(SateParam((i + 1) / 2, i, (float)temp));
                  }
              }
         }
