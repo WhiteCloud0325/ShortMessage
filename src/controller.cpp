@@ -70,13 +70,14 @@ bool Controller::Init(const libconfig::Config &config, const std::string beam_id
         return false;
     }
     // tcp server Init
-    if(server_socket_->Create()) {
+    server_socket_.reset(new TcpSocket);
+    if(!server_socket_->Create()) {
         return false;
     }
-    if (server_socket_->SetBlocking(false)) {
+    if (!server_socket_->SetBlocking(false)) {
         return false;
     }
-    if (server_socket_->Bind("0.0.0.0", tcp_port_)) {
+    if (!server_socket_->Bind("0.0.0.0", tcp_port_)) {
         return false;
     }
     if (!server_socket_->Listen(5)) {
@@ -216,6 +217,7 @@ void Controller::ProcessSchedule() {
             if (client_socket_ != NULL) {
                 if (priority_queue_.Pop(msg)) {
                     client_socket_->SendPacket(const_cast<char*>(msg.c_str()), msg.size());
+                    LOG_DEBUG("Schedule Send Message")
                 }
             }
         } 
