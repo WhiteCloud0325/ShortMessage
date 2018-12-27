@@ -1,6 +1,5 @@
 #ifndef Protocol_H_
 #define Protocol_H_
-#pragma pack(1)
 #include <string>
 #include <stdint.h>
 #include <time.h>
@@ -62,7 +61,8 @@ struct SendMessage {
     std::string content;
     int64_t timestamp;
 };*/
-
+#pragma pack(push)
+#pragma pack(1)
 struct ControlHead {
     uint32_t to_id;
     uint32_t from_id;
@@ -128,7 +128,7 @@ struct MesaageInquireRequest {
     uint32_t end_time;
 };
 
-
+#pragma pack(pop)
 
 
 
