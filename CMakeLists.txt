@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.6)
-project (AccessService)
+project (ScheduleService)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 set(CMAKE_CXX_FLAGS "-pipe -g -std=c++0x -W -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-reorder -fPIC")
@@ -13,12 +13,12 @@ set(PROJECT_DIR  ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 file(GLOB_RECURSE COMMONS_SOURCES "src/commons/*.cpp")
+file(GLOB_RECURSE THRIFT_SOURCES "src/thrift/*.cpp")
 file(GLOB_RECURSE TOOLS_SOURCES "src/tools/*.cpp")
-file(GLOB_RECURSE LOGIC_SOURCES "src/logic/*.cpp")
 file(GLOB_RECURSE MAIN_SOURCES "src/*.cpp")
 
 
-set(SERVICE_SOURCES ${COMMONS_SOURCES} ${TOOLS_SOURCES} ${LOGIC_SOURCES}  ${MAIN_SOURCES})
+set(SERVICE_SOURCES ${COMMONS_SOURCES} ${TOOLS_SOURCES} ${THRIFT_SOURCES}  ${MAIN_SOURCES})
 set(SERVICE_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 
@@ -55,9 +55,9 @@ include_directories(
     ${LIBBOOST_MODULE_INCLUDE}
     )
 
-add_executable(access-service ${SERVICE_SOURCES})
+add_executable(schedule-service ${SERVICE_SOURCES})
 
-target_link_libraries(access-service
+target_link_libraries(schedule-service
     ${LIBCONFIG_MODULE_LIB}
     ${LIBLOG4CPLUS_MODULE_LIB}
     ${LIBTHRIFT_MODULE_LIB}

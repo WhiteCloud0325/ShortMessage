@@ -9,7 +9,9 @@
 #include "commons/epoll_wrapper.h"
 #include "commons/fifo_queue.h"
 #include "tools/priority_queue.h"
+#include <thrift/server/TServer.h>
 
+class LogicInterfaceHandler;
 class Controller {
 public:
     Controller();
@@ -17,7 +19,7 @@ public:
     bool Init(const libconfig::Config &config, const std::string beam_id);
     void Start();
     void Stop();
-    
+    friend class LogicInterfaceHandler;
     /**
      *  Process Tcp Connetion and receiver message from TcpClient
      */ 
@@ -39,8 +41,9 @@ public:
     void ProcessMessageFromLogic();
 
 private:
-    void Controller::HandleEvent(int socket_fd);
+    void HandleEvent(int socket_fd);
     void AddObservedClient(int socket_fd);
+    void DelObservedClient(int socket_fd);
 private:
     bool            stop_;
     std::string     logic_ip_;
@@ -52,8 +55,8 @@ private:
     int             tcp_port_;
     int             thrift_port_;
     
-    boost::unique_ptr<TcpSocket> server_socket_;
-    boost::unique_ptr<TcpSocket> client_socket_;
+    boost::shared_ptr<TcpSocket> server_socket_;
+    boost::shared_ptr<TcpSocket> client_socket_;
     Epoll epoll_;
     FifoQueue fifo_queue_;
     PriorityQueue priority_queue_;

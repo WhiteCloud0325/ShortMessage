@@ -1,9 +1,22 @@
+#include <thrift/concurrency/PlatformThreadFactory.h>
+#include <thrift/concurrency/ThreadManager.h>
+#include <thrift/protocol/TBinaryProtocol.h>
+#include <thrift/server/TThreadPoolServer.h>
+#include <thrift/server/TThreadedServer.h> 
+#include <thrift/server/TNonblockingServer.h>
+#include <thrift/TProcessor.h>
+#include <thrift/Thrift.h>
 #include "controller.h"
 #include "tools/logger.h"
 #include "tools/send_helper.h"
 #include <string.h>
 #include <boost/bind.hpp>
 #include "LogicInterfaceHandler.h"
+using namespace im;
+using namespace apache::thrift;
+using namespace apache::thrift::protocol;
+using namespace apache::thrift::transport;
+using namespace apache::thrift::server;
 
 Controller::Controller(): stop_(false),
                           logic_port_(0),
@@ -124,7 +137,7 @@ void Controller::HandleEvent(int socket_fd) {
     if (socket_fd == server_socket_->socket_fd()) { //server listen fd event
         int conn_fd;
         struct sockaddr_in client_addr;
-        if (! server_socket_.Accept(&conn_fd, &client_addr)) {
+        if (! server_socket_->Accept(&conn_fd, &client_addr)) {
             LOG_FATAL("Access Server Accept Connection Failed");
             return;
         }
@@ -202,7 +215,7 @@ void Controller::ProcessSchedule() {
             boost::unique_lock<boost::shared_mutex> lock(client_mutex_);
             if (client_socket_ != NULL) {
                 if (priority_queue_.Pop(msg)) {
-                    client_socket_.SendPacket(msg.c_str(), msg.size());
+                    client_socket_->SendPacket(const_cast<char*>(msg.c_str()), msg.size());
                 }
             }
         } 
@@ -211,7 +224,7 @@ void Controller::ProcessSchedule() {
 }
 
 void Controller::ProcessMessageFromLogic() {
-    server_-serve();
+    server_->serve();
 }
 
 

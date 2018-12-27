@@ -2,8 +2,7 @@
 #define LogicInterfaceHandler_H_
 
 #include "thrift/LogicInterface.h"
-
-class Controller;
+#include "controller.h"
 using namespace im;
 class LogicInterfaceHandler: virtual public LogicInterfaceIf {
 public:
@@ -12,7 +11,7 @@ public:
     virtual void AccessToLogic(const std::string& request){};
     virtual void LogicToAccess(const AccessMessage& response);
 private:
-    Controller *contronller_;
+    Controller *controller_;
 };
 
 

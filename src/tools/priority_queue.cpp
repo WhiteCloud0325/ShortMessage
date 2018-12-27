@@ -23,7 +23,7 @@ bool PriorityQueue::Pop(std::string &str) {
     if (queue_.empty()) {
         return false;
     }
-    str = queue_.top();
+    str = queue_.top().message;
     queue_.pop();
     return true;
 }
