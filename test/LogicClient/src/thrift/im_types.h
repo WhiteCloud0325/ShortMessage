@@ -22,9 +22,11 @@ namespace im {
 class AccessMessage;
 
 typedef struct _AccessMessage__isset {
-  _AccessMessage__isset() : uid(false), beam_id(false), content(false) {}
+  _AccessMessage__isset() : uid(false), sate_id(false), beam_id(false), level(false), content(false) {}
   bool uid :1;
+  bool sate_id :1;
   bool beam_id :1;
+  bool level :1;
   bool content :1;
 } _AccessMessage__isset;
 
@@ -33,19 +35,25 @@ class AccessMessage {
 
   AccessMessage(const AccessMessage&);
   AccessMessage& operator=(const AccessMessage&);
-  AccessMessage() : uid(0), content() {
+  AccessMessage() : uid(0), sate_id(0), beam_id(0), level(0), content() {
   }
 
   virtual ~AccessMessage() throw();
   int32_t uid;
-  std::vector<int32_t>  beam_id;
+  int32_t sate_id;
+  int32_t beam_id;
+  int32_t level;
   std::string content;
 
   _AccessMessage__isset __isset;
 
   void __set_uid(const int32_t val);
 
-  void __set_beam_id(const std::vector<int32_t> & val);
+  void __set_sate_id(const int32_t val);
+
+  void __set_beam_id(const int32_t val);
+
+  void __set_level(const int32_t val);
 
   void __set_content(const std::string& val);
 
@@ -53,7 +61,11 @@ class AccessMessage {
   {
     if (!(uid == rhs.uid))
       return false;
+    if (!(sate_id == rhs.sate_id))
+      return false;
     if (!(beam_id == rhs.beam_id))
+      return false;
+    if (!(level == rhs.level))
       return false;
     if (!(content == rhs.content))
       return false;
