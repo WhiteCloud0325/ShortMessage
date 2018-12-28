@@ -35,7 +35,7 @@ bool Database::Init(const libconfig::Setting &setting) {
         sprintf(url, "mysql://%s/%s?user=%s&password=%s", host_name_.c_str(), db_name_.c_str(), user_.c_str(), password_.c_str());
         mysql_url_ = URL_new(url);
         pool_ = ConnectionPool_new(mysql_url_);
-        ConnectionPool_setMaxConnection(pool_, max_size_);
+        ConnectionPool_setMaxConnections(pool_, max_size_);
         ConnectionPool_start(pool_);
     }
     catch (...) {
