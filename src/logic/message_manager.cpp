@@ -83,7 +83,7 @@ void MessageManager::ProcessReceipt(ControlHead *control_head) {
     if (user_ack_response->receipt_type != 0x60) {
         return;
     }
-    uint16_t frame_id = user_ack_response->frame_id;
+    uint16_t frame_id = ntohs(user_ack_response->frame_id);
     
     Connection_T conn = database_->GetConnection();
     uint8_t type = database_->GetOfflineMessage(conn, from_id, to_id, frame_id);
