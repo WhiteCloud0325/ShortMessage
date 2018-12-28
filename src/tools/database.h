@@ -25,6 +25,7 @@ public:
     void UpdateOfflineMessage(Connection_T conn, const uint32_t &from_id, const uint32_t &to_id, const uint16_t frame_id, const int &retry_num, const time_t &timestamp);
     void GetAllOfflineMessage(Connection_T conn, const int &max_retry_num, const time_t &retry_interval, std::vector<MessageItem> &messages);
     bool IsExistUser(Connection_T conn, const uint32_t &user_id);
+    uint8_t GetOfflineMessage(Connection_T conn, const uint32_t &from_id, const uint32_t &to_id, const uint16_t &frame_id);
 private:
     std::string host_name_;
     std::string user_;
@@ -32,6 +33,7 @@ private:
     std::string db_name_;
     URL_T mysql_url_;
     ConnectionPool_T pool_;
+    int max_size_;
 };
 
 

@@ -19,6 +19,11 @@ bool Database::Init(const libconfig::Setting &setting) {
         }
         if (!setting.lookupValue("db", db_name_)) {
             LOG_INFO("Database init config db error");
+            return false;
+        }
+        if (!setting.lookupValue("max_size", max_size_)) {
+            LOG_INFO("Dababase init config max_size error");
+            return false;
         }
     }
     catch(...) {
@@ -30,6 +35,7 @@ bool Database::Init(const libconfig::Setting &setting) {
         sprintf(url, "mysql://%s/%s?user=%s&password=%s", host_name_.c_str(), db_name_.c_str(), user_.c_str(), password_.c_str());
         mysql_url_ = URL_new(url);
         pool_ = ConnectionPool_new(mysql_url_);
+        ConnectionPool_setMaxConnection(pool_, max_size_);
         ConnectionPool_start(pool_);
     }
     catch (...) {
@@ -332,5 +338,24 @@ bool Database::IsExistUser(Connection_T conn, const uint32_t &user_id) {
     }
     END_TRY;
     return res;
+}
 
+uint8_t Database::GetOfflineMessage(Connection_T conn, const uint32_t &from_id, const uint32_t &to_id, const uint16_t &frame_id) {
+    uint8_t type = 0;
+    TRY{
+        PreparedStatement_T p = Connection_prepareStatement(conn, "SELECT type FROM message_cache WHERE from_user = ? AND to_user = ? AND frame_id = ?");
+        PreparedStatement_setInt(p, 1, (int)from_id);
+        PreparedStatement_setInt(p, 2, (int)to_id);
+        PreparedStatement_setInt(p, 3, (int)frame_id);
+        ResultSet_T r = PreparedStatement_executeQuery(p);
+        if (ResultSet_next(r)) {
+            type = ResultSet_getInt(r, 1);
+        }
+    }
+    CATCH(SQLException) {
+        LOG_INFO("Database GetOfflineMessage Failed: from_id=%u||to_id=%u||fram_id=%u", from_id, to_id, frame_id);
+        return type;
+    }
+    END_TRY;
+    return type;
 }

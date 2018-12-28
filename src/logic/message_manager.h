@@ -12,6 +12,7 @@ public:
     void ProcessForwardNoAckMessage(ControlHead *control_head);
     void ProcessBackwardNoAckMessage(ControlHead *control_head);
     void ProcessCompleteMessage(ControlHead *control_head);
+    void ProcessReceipt(ControlHead *control_head);
 private:
     Database *database_;
 };

@@ -6,6 +6,8 @@
 #include "logic/protocol.h"
 std::string ResponseEncode(const Response &response); 
 
+std::string ResponseEncode(const MessageResponse &response);
+
 std::string MessageEncode(const ControlHead* control_head);
 
 std::string MessageEncode(const MessageItem &message); 

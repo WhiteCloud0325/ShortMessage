@@ -125,7 +125,8 @@ struct MessageResponse {
     uint16_t frame_id;
     uint8_t type;
     uint8_t retain;  
-    std::vector<MessageReceiptItem> message_receipt_items; 
+    MessageReceiptItem message_receipt_item;
+    //std::vector<MessageReceiptItem> message_receipt_items; 
 };
 
 struct UserAckResponse {

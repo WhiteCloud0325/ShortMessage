@@ -62,3 +62,32 @@ void MessageManager::ProcessCompleteMessage(ControlHead *control_head) {
     }
     return;
 }
+
+void MessageManager::ProcessReceipt(ControlHead *control_head) {
+    uint32_t to_id = ntohl(control_head->from_id);
+    uint32_t from_id = ntohl(control_head->to_id);
+    UserAckResponse *user_ack_response = (UserAckResponse*) control_head->content;
+    if (user_ack_response->receipt_type != 0x60) {
+        return;
+    }
+    uint16_t frame_id = user_ack_response->frame_id;
+    
+    Connection_T conn = database_->GetConnection();
+    uint8_t type = database_->GetOfflineMessage(conn, from_id, to_id, frame_id);
+    if (type == 0x60) {
+        database_->DeleteOfflineMessage(conn, from_id, to_id, frame_id);
+       /* MessageResponse response;
+        response.to_id = htonl(from_id);
+        response.from_id = 0;
+        response.frame_id = htons(frame_id + 1);
+        response.type = 0x80;
+        response.retain = 0;
+        response.message_receipt_item.user_id = htonl(to_id);
+        response.message_receipt_item.frame_id = htons(frame_id);
+        response.message_receipt_item.type = 0x60;
+        response.message_receipt_item.retain = 0;
+        std::string str = ResponseEncode(response);
+        SendHelper::GetInstance()->SendMessage(from_id, str, ,10);*/
+    }
+    Connection_close(conn);
+}
