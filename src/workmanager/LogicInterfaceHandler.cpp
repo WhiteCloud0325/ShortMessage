@@ -38,6 +38,7 @@ void LogicInterfaceHandler::AccessToLogic(const std::string& request) {
         case INQUIRE_MESSAGE_REQUEST:
             break;
         case RECEIPTE:
+            controller_->message_manager_.ProcessReceipt(control_head);
             break;
         default:
             break;
