@@ -53,7 +53,7 @@ void QosSendDaemon::Start() {
             if (sates.empty()) {
                 continue;
             }
-            std::cout << user_id << std::endl;
+            //std::cout << user_id << std::endl;
             std::string str = MessageEncode(message);
             SendHelper::GetInstance()->SendMessage(message.to_id, str, sates, 5);
         }
