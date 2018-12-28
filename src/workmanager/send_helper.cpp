@@ -48,7 +48,7 @@ bool SendHelper::SendMessage(const uint32_t user_id, const std::string &buf, std
     int32_t cur_sate_id = -1;
     int32_t cur_beam_id = -1;
     for (SateParam &sate: sates) {
-        if (sates.snr > cur_snr && schedule_address_.find(sate.beam_id) != schedule_address_.end()) {
+        if (sate.snr > cur_snr && schedule_address_.find(sate.beam_id) != schedule_address_.end()) {
             cur_snr = sate.snr;
             cur_sate_id = sate.sate_id;
             cur_beam_id = sate.beam_id;
