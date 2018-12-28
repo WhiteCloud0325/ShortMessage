@@ -46,7 +46,7 @@ void MessageManager::ProcessBackwardNoAckMessage(ControlHead *control_head) {
 }
 void MessageManager::ProcessCompleteMessage(ControlHead *control_head) {
     uint32_t to_id = ntohl(control_head->to_id);
-
+    uint32_t from_id = ntohl(control_head->from_id);
     Connection_T conn = database_->GetConnection();
     if (conn == NULL) {
         return;
@@ -54,11 +54,24 @@ void MessageManager::ProcessCompleteMessage(ControlHead *control_head) {
 
     int64_t id = database_->InsertStoreMessage(conn, control_head);
     database_->InsertOfflineMessage(conn, control_head, id);
-    std::vector<SateParam> sates = database_->GetSateCover(conn, to_id);
+    std::vector<SateParam> sates_to_user = database_->GetSateCover(conn, to_id);
+    std::vector<SateParam> sates_from_user = database_->GetSateCover(conn, from_id);
     Connection_close(conn);
-    if (!sates.empty()) {
+    Response response;
+    response.to_id = htonl(from_id);
+    response.from_id = 0;
+    response.frame_id = control_head->frame_id;
+    response.type = 0x80;
+    response.retain = 0;
+    response.receipt_type = 0x60;
+    response.receipt_indicate = 0;
+    if (!sates_from_user.empty()) {
+        std::string res = ResponseEncode(response);
+        SendHelper::GetInstance()->SendMessage(from_id, res, sates_from_user, 10);
+    }
+    if (!sates_to_user.empty()) {
         std::string str = MessageEncode(control_head);
-        SendHelper::GetInstance()->SendMessage(to_id, str, sates, 5);
+        SendHelper::GetInstance()->SendMessage(to_id, str, sates_to_user, 5);
     }
     return;
 }
