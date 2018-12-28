@@ -2,8 +2,10 @@ namespace cpp im
 
 struct AccessMessage { 
     1:i32 uid
-    2:list<i32> beam_id;
-    3:string content;
+    2:i32 sate_id;
+    3:i32 beam_id;
+    4:i32 level;
+    5:string content;
 }
 
 service LogicInterface {

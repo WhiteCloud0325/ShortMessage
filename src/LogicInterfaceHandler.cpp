@@ -11,8 +11,9 @@ using namespace im;
 }*/
 
 void LogicInterfaceHandler::LogicToAccess(const AccessMessage& response) {
-    uint8_t beam_id = response.beam_id[0];
-    uint8_t sate_id = 1;
+    uint8_t beam_id = response.beam_id;
+    uint8_t sate_id = response.sate_id;
+    int level = response.level;
     int len = response.content.size();
     len -= 4;
     char buf[1024] = {0};
@@ -49,7 +50,7 @@ void LogicInterfaceHandler::LogicToAccess(const AccessMessage& response) {
     
     write_pos += len;
     std::string str(buf, write_pos - buf);
-    controller_->priority_queue_.Push(5, str);
+    controller_->priority_queue_.Push(level, str);
 
 }
 

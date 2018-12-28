@@ -22,8 +22,16 @@ void AccessMessage::__set_uid(const int32_t val) {
   this->uid = val;
 }
 
-void AccessMessage::__set_beam_id(const std::vector<int32_t> & val) {
+void AccessMessage::__set_sate_id(const int32_t val) {
+  this->sate_id = val;
+}
+
+void AccessMessage::__set_beam_id(const int32_t val) {
   this->beam_id = val;
+}
+
+void AccessMessage::__set_level(const int32_t val) {
+  this->level = val;
 }
 
 void AccessMessage::__set_content(const std::string& val) {
@@ -60,26 +68,30 @@ uint32_t AccessMessage::read(::apache::thrift::protocol::TProtocol* iprot) {
         }
         break;
       case 2:
-        if (ftype == ::apache::thrift::protocol::T_LIST) {
-          {
-            this->beam_id.clear();
-            uint32_t _size0;
-            ::apache::thrift::protocol::TType _etype3;
-            xfer += iprot->readListBegin(_etype3, _size0);
-            this->beam_id.resize(_size0);
-            uint32_t _i4;
-            for (_i4 = 0; _i4 < _size0; ++_i4)
-            {
-              xfer += iprot->readI32(this->beam_id[_i4]);
-            }
-            xfer += iprot->readListEnd();
-          }
-          this->__isset.beam_id = true;
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->sate_id);
+          this->__isset.sate_id = true;
         } else {
           xfer += iprot->skip(ftype);
         }
         break;
       case 3:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->beam_id);
+          this->__isset.beam_id = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 4:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->level);
+          this->__isset.level = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 5:
         if (ftype == ::apache::thrift::protocol::T_STRING) {
           xfer += iprot->readString(this->content);
           this->__isset.content = true;
@@ -108,19 +120,19 @@ uint32_t AccessMessage::write(::apache::thrift::protocol::TProtocol* oprot) cons
   xfer += oprot->writeI32(this->uid);
   xfer += oprot->writeFieldEnd();
 
-  xfer += oprot->writeFieldBegin("beam_id", ::apache::thrift::protocol::T_LIST, 2);
-  {
-    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_I32, static_cast<uint32_t>(this->beam_id.size()));
-    std::vector<int32_t> ::const_iterator _iter5;
-    for (_iter5 = this->beam_id.begin(); _iter5 != this->beam_id.end(); ++_iter5)
-    {
-      xfer += oprot->writeI32((*_iter5));
-    }
-    xfer += oprot->writeListEnd();
-  }
+  xfer += oprot->writeFieldBegin("sate_id", ::apache::thrift::protocol::T_I32, 2);
+  xfer += oprot->writeI32(this->sate_id);
   xfer += oprot->writeFieldEnd();
 
-  xfer += oprot->writeFieldBegin("content", ::apache::thrift::protocol::T_STRING, 3);
+  xfer += oprot->writeFieldBegin("beam_id", ::apache::thrift::protocol::T_I32, 3);
+  xfer += oprot->writeI32(this->beam_id);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("level", ::apache::thrift::protocol::T_I32, 4);
+  xfer += oprot->writeI32(this->level);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("content", ::apache::thrift::protocol::T_STRING, 5);
   xfer += oprot->writeString(this->content);
   xfer += oprot->writeFieldEnd();
 
@@ -132,29 +144,37 @@ uint32_t AccessMessage::write(::apache::thrift::protocol::TProtocol* oprot) cons
 void swap(AccessMessage &a, AccessMessage &b) {
   using ::std::swap;
   swap(a.uid, b.uid);
+  swap(a.sate_id, b.sate_id);
   swap(a.beam_id, b.beam_id);
+  swap(a.level, b.level);
   swap(a.content, b.content);
   swap(a.__isset, b.__isset);
 }
 
-AccessMessage::AccessMessage(const AccessMessage& other6) {
-  uid = other6.uid;
-  beam_id = other6.beam_id;
-  content = other6.content;
-  __isset = other6.__isset;
+AccessMessage::AccessMessage(const AccessMessage& other0) {
+  uid = other0.uid;
+  sate_id = other0.sate_id;
+  beam_id = other0.beam_id;
+  level = other0.level;
+  content = other0.content;
+  __isset = other0.__isset;
 }
-AccessMessage& AccessMessage::operator=(const AccessMessage& other7) {
-  uid = other7.uid;
-  beam_id = other7.beam_id;
-  content = other7.content;
-  __isset = other7.__isset;
+AccessMessage& AccessMessage::operator=(const AccessMessage& other1) {
+  uid = other1.uid;
+  sate_id = other1.sate_id;
+  beam_id = other1.beam_id;
+  level = other1.level;
+  content = other1.content;
+  __isset = other1.__isset;
   return *this;
 }
 void AccessMessage::printTo(std::ostream& out) const {
   using ::apache::thrift::to_string;
   out << "AccessMessage(";
   out << "uid=" << to_string(uid);
+  out << ", " << "sate_id=" << to_string(sate_id);
   out << ", " << "beam_id=" << to_string(beam_id);
+  out << ", " << "level=" << to_string(level);
   out << ", " << "content=" << to_string(content);
   out << ")";
 }
