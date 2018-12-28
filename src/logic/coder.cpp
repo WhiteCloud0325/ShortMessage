@@ -24,11 +24,11 @@ std::string ResponseEncode(const Response &response) {
 std::string MessageEncode(const ControlHead* control_head) {
     char buf[1024] = {0};
     char *pos = buf;
-    *(uint32_t*)pos = htonl(control_head->to_id);
+    *(uint32_t*)pos = control_head->to_id;
     pos +=4;
-    *(uint32_t*)pos = htonl(control_head->from_id);
+    *(uint32_t*)pos = control_head->from_id;
     pos +=4;
-    *(uint16_t*)pos = htons(control_head->frame_id);
+    *(uint16_t*)pos = control_head->frame_id;
     pos +=2;
     *(uint8_t*)pos++ = control_head->type;
     *(uint8_t*)pos++ = control_head->retain;
