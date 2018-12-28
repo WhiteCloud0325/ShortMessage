@@ -68,7 +68,7 @@ void MobileManager::ProcessLogin(const ControlHead* control_head) {
     }
     Connection_close(conn);
     std::string str =  ResponseEncode(response);
-    SendHelper::GetInstance()->SendMessage(user_id, str, sate.sates_param);
+    SendHelper::GetInstance()->SendMessage(user_id, str, sate.sates_param, 10);
 
 }
 
@@ -95,7 +95,7 @@ void MobileManager::ProcessLogout(const ControlHead *control_head) {
     database_->UpdateSateCover(conn, user_id, sate);
     Connection_close(conn);
     std::string str = ResponseEncode(response);
-    SendHelper::GetInstance()->SendMessage(user_id, str, sates);
+    SendHelper::GetInstance()->SendMessage(user_id, str, sates, 10);
 
 }
 
@@ -135,7 +135,7 @@ void MobileManager::ProcessMobileRequest(const ControlHead *control_head) {
     database_->UpdateSateCover(conn, user_id, sate);
     Connection_close(conn);
     std::string str =  ResponseEncode(response);
-    SendHelper::GetInstance()->SendMessage(user_id, str, sate.sates_param);
+    SendHelper::GetInstance()->SendMessage(user_id, str, sate.sates_param, 10);
 }
 
 

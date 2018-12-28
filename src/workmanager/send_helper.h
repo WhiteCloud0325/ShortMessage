@@ -29,12 +29,12 @@ public:
         return instance_;
     }
     bool Init(libconfig::Setting &setting);
-    void SendMessage(const uint32_t user_id, const std::string &buf, std::vector<SateParam> &sates);
+    bool SendMessage(const uint32_t user_id, const std::string &buf, std::vector<SateParam> &sates, const int &level);
 private:
     SendHelper():access_port_(0){}
     static SendHelper* instance_;
 private:
-    std::map<int, Address> schedule_address_;
+    std::map<int32_t, Address> schedule_address_;
 };
 
 

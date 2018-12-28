@@ -34,7 +34,7 @@ void MessageManager::ProcessSimpleMessage(ControlHead *control_head) {
     Connection_close(conn);
     if (!sates.empty()) {
         std::string str = MessageEncode(control_head);
-        SendHelper::GetInstance()->SendMessage(to_id, str, sates);
+        SendHelper::GetInstance()->SendMessage(to_id, str, sates, 5);
     }
     
     return;
@@ -58,7 +58,7 @@ void MessageManager::ProcessCompleteMessage(ControlHead *control_head) {
     Connection_close(conn);
     if (!sates.empty()) {
         std::string str = MessageEncode(control_head);
-        SendHelper::GetInstance()->SendMessage(to_id, str, sates);
+        SendHelper::GetInstance()->SendMessage(to_id, str, sates, 5);
     }
     return;
 }

@@ -43,14 +43,28 @@ bool SendHelper::Init(libconfig::Setting &setting) {
     return true;
 }
 
-void SendHelper::SendMessage(const uint32_t user_id, const std::string &buf, std::vector<SateParam> &sates) {
-    
+bool SendHelper::SendMessage(const uint32_t user_id, const std::string &buf, std::vector<SateParam> &sates, const int &level) {
+    float cur_snr = -1;
+    int32_t cur_sate_id = -1;
+    int32_t cur_beam_id = -1;
+    for (SateParam &sate: sates) {
+        if (sates.snr > cur_snr && schedule_address_.find(sate.beam_id) != schedule_address_.end()) {
+            cur_snr = sate.snr;
+            cur_sate_id = sate.sate_id;
+            cur_beam_id = sate.beam_id;
+        }
+    }
+    if (cur_sate_id == -1) {
+        return false;
+    }
     try {
         im::AccessMessage send;
         send.__set_uid(user_id);
-        send.__set_beam_id(beams);
+        send.__set_sate_id(cur_sate_id);
+        send.__set_beam_id(cur_beam_id);
+        send.__set_level(level);
         send.__set_content(buf);
-        boost::shared_ptr<TSocket> client_socket(new TSocket(access_ip_, access_port_));
+        boost::shared_ptr<TSocket> client_socket(new TSocket(schedule_address_[cur_beam_id].ip, schedule_address_[cur_beam_id].port));
         boost::shared_ptr<TTransport> client_transport(new TBufferedTransport(client_socket));
         boost::shared_ptr<TProtocol> client_protocol(new TBinaryProtocol(client_transport));
         boost::shared_ptr<im::LogicInterfaceClient> client(new im::LogicInterfaceClient(client_protocol));
@@ -61,5 +75,7 @@ void SendHelper::SendMessage(const uint32_t user_id, const std::string &buf, std
     }
     catch(...) {
         LOG_ERROR("SendMessage Error: user_id=%u||content=%s", user_id, buf.c_str());
+        return false;
     }
+    return true;
 }
