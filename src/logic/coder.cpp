@@ -62,11 +62,11 @@ std::string MessageEncode(const ControlHead* control_head) {
 std::string MessageEncode(const MessageItem &message) {
     char buf[1024] = {0};
     char *pos = buf;
-    *(uint32_t*)pos = message.to_id;
+    *(uint32_t*)pos = htonl(message.to_id);
     pos +=4;
-    *(uint32_t*)pos = message.from_id;
+    *(uint32_t*)pos = htonl(message.from_id);
     pos +=4;
-    *(uint16_t*)pos = message.frame_id;
+    *(uint16_t*)pos = htons(message.frame_id);
     pos +=2;
     *(uint8_t*)pos++ = message.type;
     *(uint8_t*)pos++ = message.retain;
