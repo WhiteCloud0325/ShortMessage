@@ -20,7 +20,7 @@ bool SendHelper::Init(libconfig::Setting &setting) {
             return false;
         }
         for (int i = 0; i < num; ++i) {
-            const Setting &addr = setting[i];
+            const libconfig::Setting &addr = setting[i];
             Address address;
             int id = 0;
             if (!addr.lookupValue("beamid", id)) {

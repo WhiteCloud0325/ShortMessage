@@ -31,7 +31,7 @@ public:
     bool Init(libconfig::Setting &setting);
     bool SendMessage(const uint32_t user_id, const std::string &buf, std::vector<SateParam> &sates, const int &level);
 private:
-    SendHelper():access_port_(0){}
+    SendHelper(){}
     static SendHelper* instance_;
 private:
     std::map<int32_t, Address> schedule_address_;
