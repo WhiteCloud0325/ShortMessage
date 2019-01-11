@@ -25,8 +25,7 @@ void MessageManager::ProcessSimpleMessage(ControlHead *control_head) {
     if (conn == NULL) {
         return;
     }
-    int64_t id = database_->InsertStoreMessage(conn, control_head);
-    if (id == -1) {
+    if (!database_->InsertStoreMessage(conn, control_head)) {
         Connection_close(conn);
         return;
     }
@@ -52,8 +51,10 @@ void MessageManager::ProcessCompleteMessage(ControlHead *control_head) {
         return;
     }
 
-    int64_t id = database_->InsertStoreMessage(conn, control_head);
-    database_->InsertOfflineMessage(conn, control_head, id);
+    if (!database_->InsertOfflineMessage(conn, control_head, id)) {
+        Connection_clear(conn);
+        return;
+    }
     std::vector<SateParam> sates_to_user = database_->GetSateCover(conn, to_id);
     std::vector<SateParam> sates_from_user = database_->GetSateCover(conn, from_id);
     Connection_close(conn);
@@ -88,11 +89,12 @@ void MessageManager::ProcessReceipt(ControlHead *control_head) {
     uint16_t frame_id = ntohs(user_ack_response->frame_id);
     
     Connection_T conn = database_->GetConnection();
-    uint8_t type = database_->GetOfflineMessage(conn, from_id, to_id, frame_id);
-    printf("message tpye=%02x\n", type);
-    if (type == 0x60) {
+    MessageItem msg;
+    time_t recv_time;
+    if(database_->GetOfflineMessage(conn, from_id, to_id, frame_id, msg, recv_time && msg.type == 0x60) {
         database_->DeleteOfflineMessage(conn, from_id, to_id, frame_id);
         LOG_DEBUG("Message Receipt: from_id=%ld||to_id=%ld||frame_id=%ld", from_id, to_id, frame_id);
+        database_->InsertStoreMessage(conn, msg, recv_time);
         /* MessageResponse response;
         response.to_id = htonl(from_id);
         response.from_id = 0;
