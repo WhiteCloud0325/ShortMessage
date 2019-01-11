@@ -71,11 +71,16 @@ int main() {
                 //TODO
                 uint32_t uid = *(uint32_t*)read_pos;
                 uid = ntohl(uid);
-                uint32_t tid = *(uint32_t*)(read_pos + 32);
+               /* uint32_t tid = *(uint32_t*)(read_pos + 32);
                 tid = ntohl(tid);
                 uint16_t fid = *(uint16_t*)(read_pos + 36);
                 fid = ntohs(fid);
-                uint8_t type = *(uint8_t*)(read_pos + 38);
+                uint8_t type = *(uint8_t*)(read_pos + 38);*/
+                uint32_t tid = *(uint32_t*)(read_pos + 4);
+                tid = ntohl(tid);
+                uint16_t fid = *(uint16_t*)(read_pos + 8);
+                fid = ntohs(fid);
+                uint8_t type = *(uint8_t*)(read_pos + 10);
                 cout << uid << endl;
                 cout << tid << endl;
                 cout << fid << endl;

@@ -50,7 +50,9 @@ void LogicInterfaceHandler::LogicToAccess(const AccessMessage& response) {
     
     write_pos += len;
     std::string str(buf, write_pos - buf);
-    controller_->priority_queue_.Push(level, str);
+    //controller_->priority_queue_.Push(level, str);
+    printf("receive message\n");
+    controller_->priority_queue_.Push(level, response.content);
 
 }
 
