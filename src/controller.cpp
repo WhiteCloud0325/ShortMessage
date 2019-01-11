@@ -151,10 +151,10 @@ void Controller::ProcessMessage() {
             std::string message(pos, len - 28);
             SendHelper::GetInstance()->SendMessage(message);
         }*/
-        for (int i = 0; i < len; ++i) {
+        /*for (int i = 0; i < len; ++i) {
             printf("%02x ", (uint8_t)*(buf+i));
         }
-        printf("\n");
+        printf("\n");*/
         std::string message(buf, len);
         SendHelper::GetInstance()->SendMessage(message);
     }
