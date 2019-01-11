@@ -51,7 +51,7 @@ void MessageManager::ProcessCompleteMessage(ControlHead *control_head) {
         return;
     }
 
-    if (!database_->InsertOfflineMessage(conn, control_head, id)) {
+    if (!database_->InsertOfflineMessage(conn, control_head)) {
         Connection_clear(conn);
         return;
     }

@@ -21,7 +21,7 @@ public:
     int GetOfflineMessageNum(Connection_T conn, uint32_t &user_id);
     bool InsertStoreMessage(Connection_T conn, ControlHead *control_head);
     bool InsertStoreMessage(Connection_T conn, const MessageItem &msg, const time_t &recv_time);
-    bool InsertOfflineMessage(Connection_T conn, ControlHead *control_head, const int64_t& id);
+    bool InsertOfflineMessage(Connection_T conn, ControlHead *control_head);
     bool DeleteOfflineMessage(Connection_T conn, const uint32_t &from_id, const uint32_t &to_id, const uint16_t frame_id);
     void UpdateOfflineMessage(Connection_T conn, const uint32_t &from_id, const uint32_t &to_id, const uint16_t frame_id, const int &retry_num, const time_t &timestamp);
     void GetAllOfflineMessage(Connection_T conn, const int &max_retry_num, const time_t &retry_interval, std::vector<MessageItem> &messages);

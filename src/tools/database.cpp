@@ -235,7 +235,7 @@ bool Database::InsertStoreMessage(Connection_T conn, const MessageItem &msg, con
  *         @control_head, ControlHead
  *  return: bool
  */ 
-bool Database::InsertOfflineMessage(Connection_T conn, ControlHead* control_head, const int64_t& id) {
+bool Database::InsertOfflineMessage(Connection_T conn, ControlHead* control_head) {
     if (control_head == NULL) {
         return false;
     }
@@ -244,15 +244,14 @@ bool Database::InsertOfflineMessage(Connection_T conn, ControlHead* control_head
     uint16_t frame_id = ntohs(control_head->frame_id);
     time_t timestamp = time(NULL);
     TRY{
-        PreparedStatement_T p = Connection_prepareStatement(conn, "INSERT INTO message_cache(message_id, from_user, to_user, type, text, recv_time, frame_id, retry_time) VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
-        PreparedStatement_setLLong(p, 1, (long long)id);
-        PreparedStatement_setInt(p, 2, (int)from_id);
-        PreparedStatement_setInt(p, 3, (int)to_id);
-        PreparedStatement_setInt(p, 4, (int) control_head->type);
-        PreparedStatement_setString(p, 5,  control_head->content);
-        PreparedStatement_setTimestamp(p, 6, timestamp);
-        PreparedStatement_setInt(p, 7, (int)frame_id);
-        PreparedStatement_setTimestamp(p, 8, timestamp + 10);
+        PreparedStatement_T p = Connection_prepareStatement(conn, "INSERT INTO message_cache(from_user, to_user, type, text, recv_time, frame_id, retry_time) VALUES(?, ?, ?, ?, ?, ?, ?)");
+        PreparedStatement_setInt(p, 1, (int)from_id);
+        PreparedStatement_setInt(p, 2, (int)to_id);
+        PreparedStatement_setInt(p, 3, (int) control_head->type);
+        PreparedStatement_setString(p, 4,  control_head->content);
+        PreparedStatement_setTimestamp(p, 5, timestamp);
+        PreparedStatement_setInt(p, 6, (int)frame_id);
+        PreparedStatement_setTimestamp(p, 7, timestamp + 10);
         PreparedStatement_execute(p);
     }
     CATCH(SQLException) {
