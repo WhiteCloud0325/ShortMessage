@@ -87,6 +87,7 @@ Connection_T Database::GetConnection() {
 bool Database::UpdateSateCover(Connection_T conn, const uint32_t &user_id, const Satellite& sate_cover) {
     std::vector<float> temp_snr(MAX_BEAM_NUM, -1);
     for (int i = 0; i < sate_cover.sat_cover_num; ++i) {
+        assert(sate_cover.sates_param[i].beam_id >=1 && sate_cover.sates_param[i].beam_id <= 10);
         temp_snr[sate_cover.sates_param[i].beam_id - 1] = sate_cover.sates_param[i].snr;
     } 
     std::string sql = "UPDATE sate_cover SET ";
