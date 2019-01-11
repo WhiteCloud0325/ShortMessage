@@ -91,7 +91,7 @@ void MessageManager::ProcessReceipt(ControlHead *control_head) {
     Connection_T conn = database_->GetConnection();
     MessageItem msg;
     time_t recv_time;
-    if(database_->GetOfflineMessage(conn, from_id, to_id, frame_id, msg, recv_time && msg.type == 0x60) {
+    if(database_->GetOfflineMessage(conn, from_id, to_id, frame_id, msg, recv_time) && msg.type == 0x60) {
         database_->DeleteOfflineMessage(conn, from_id, to_id, frame_id);
         LOG_DEBUG("Message Receipt: from_id=%ld||to_id=%ld||frame_id=%ld", from_id, to_id, frame_id);
         database_->InsertStoreMessage(conn, msg, recv_time);
