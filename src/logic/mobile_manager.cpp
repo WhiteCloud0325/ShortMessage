@@ -39,7 +39,7 @@ void MobileManager::ProcessLogin(const ControlHead* control_head) {
     response.retain = control_head->retain;
     response.receipt_type = 0x01;
     response.receipt_indicate = 0x00;
-    LOG_DEBUG("ProcessLogin: user_id=%ld||beam_num", user_id, sate.sat_cover_num);
+    LOG_DEBUG("ProcessLogin: user_id=%ld||beam_num=%ld", user_id, sate.sat_cover_num);
     Connection_T conn = database_->GetConnection();
     if (conn == NULL) {
         return;

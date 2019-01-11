@@ -63,15 +63,17 @@ void MessageManager::ProcessCompleteMessage(ControlHead *control_head) {
     response.frame_id = control_head->frame_id;
     response.type = 0x80;
     response.retain = 0;
-    response.receipt_type = 0x60;
+    response.receipt_type = 0x50;
     response.receipt_indicate = 0;
     if (!sates_from_user.empty()) {
         std::string res = ResponseEncode(response);
         SendHelper::GetInstance()->SendMessage(from_id, res, sates_from_user, 10);
+        LOG_DEBUG("Message ProcessCompleteMessage SendReceipt: from_id=%ld", from_id);
     }
     if (!sates_to_user.empty()) {
         std::string str = MessageEncode(control_head);
         SendHelper::GetInstance()->SendMessage(to_id, str, sates_to_user, 5);
+        LOG_DEBUG("Message ProcessCompleteMessage SendMessage: from_id=%ld||to_id=%ld||frame_id=%ld", from_id, to_id, ntohs(control_head->frame_id));
     }
     return;
 }
@@ -87,9 +89,11 @@ void MessageManager::ProcessReceipt(ControlHead *control_head) {
     
     Connection_T conn = database_->GetConnection();
     uint8_t type = database_->GetOfflineMessage(conn, from_id, to_id, frame_id);
+    printf("message tpye=%02x\n", type);
     if (type == 0x60) {
         database_->DeleteOfflineMessage(conn, from_id, to_id, frame_id);
-       /* MessageResponse response;
+        LOG_DEBUG("Message Receipt: from_id=%ld||to_id=%ld||frame_id=%ld", from_id, to_id, frame_id);
+        /* MessageResponse response;
         response.to_id = htonl(from_id);
         response.from_id = 0;
         response.frame_id = htons(frame_id + 1);

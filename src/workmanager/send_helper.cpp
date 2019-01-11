@@ -40,6 +40,7 @@ bool SendHelper::Init(libconfig::Setting &setting) {
         LOG_INFO("SendHelper Init Exception");
         return false;
     }
+    printf("sendmessage\n");
     return true;
 }
 
