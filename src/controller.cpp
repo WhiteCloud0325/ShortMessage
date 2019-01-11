@@ -143,13 +143,19 @@ void Controller::ProcessMessage() {
         memset(buf, 0 ,1024);
         len = 0;
         fifo_queue_.PopPacket(buf, &len);
-        if (len >= 40) {
+        /*if (len >= 40) {
             char *pos = buf;
             uint32_t to_id = *(uint32_t*)pos;
             pos += 28;
             *(uint32_t*)pos = to_id;
             std::string message(pos, len - 28);
             SendHelper::GetInstance()->SendMessage(message);
+        }*/
+        for (int i = 0; i < len; ++i) {
+            printf("%02x ", (uint8_t)*(buf+i));
         }
+        printf("\n");
+        std::string message(buf, len);
+        SendHelper::GetInstance()->SendMessage(message);
     }
 }
