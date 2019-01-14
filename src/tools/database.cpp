@@ -183,7 +183,7 @@ bool Database::InsertStoreMessage(Connection_T conn, ControlHead* control_head) 
     tm tm_recv_time;
     gmtime_r(&recv_time, &tm_recv_time);
     char timestamp[64] = {0};
-    strftime(buf, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", &tm_recv_time);
+    strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", &tm_recv_time);
     sprintf(sql, "INSERT INTO message_store(from_user, to_user, text, recv_time, send_time, frame_id, type) VALUES(%d, %d, '%s', '%s', '%s', %d, %d)",
             from_id, to_id, control_head->content, timestamp, timestamp, frame_id, control_head->type);
     TRY{
@@ -275,7 +275,7 @@ bool Database::InsertOfflineMessage(Connection_T conn, ControlHead* control_head
  */ 
 bool Database::DeleteOfflineMessage(Connection_T conn, const uint32_t &from_id, const uint32_t &to_id, const uint16_t frame_id) {
     char sql[1024] = {0};
-    sprintf(sql, "DELETE FROM message_cache WHERE from_user = ? AND to_user = ? AND frame_id = ?",
+    sprintf(sql, "DELETE FROM message_cache WHERE from_user = %d AND to_user = %d AND frame_id = %d",
             from_id, to_id, frame_id);
     TRY{
         Connection_execute(conn, sql);
