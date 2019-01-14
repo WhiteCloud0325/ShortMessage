@@ -175,33 +175,19 @@ bool Database::InsertStoreMessage(Connection_T conn, ControlHead* control_head) 
     if (control_head == NULL) {
         return false;
     }
+    char sql[4096] = {0};
     uint32_t to_id = ntohl(control_head->to_id);
     uint32_t from_id = ntohl(control_head->from_id);
     uint16_t frame_id = ntohs(control_head->frame_id);
     time_t recv_time = time(NULL);
-    tm* tm_recv_time = gmtime(recv_time);
-    char buf[64] = {0};
-    strftime(buf, sizeof(buf) - 1, "%Y-%m-%d %H:%M:%S", tm);
-    std::string timestamp(buf);
-    std::string sql = "INSERT INTO message_store(from_user, to_user, text, recv_time, send_time, frame_id, type) VALUES(";
-    sql += std::to_string(from_id) + ",";
-    sql += std::to_string(to_id) + ",";
-    sql += control_head->content + ",";
-    sql += std::to_string(recv_time) + ",";
-    sql += std::to_string(from_id) + ",";
-    sql += std::to_string(from_id) + ",";
-    sql += std::to_string(from_id) + ",";
-    
+    tm tm_recv_time;
+    gmtime_r(&recv_time, &tm_recv_time);
+    char timestamp[64] = {0};
+    strftime(buf, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", &tm_recv_time);
+    sprintf(sql, "INSERT INTO message_store(from_user, to_user, text, recv_time, send_time, frame_id, type) VALUES(%d, %d, '%s', '%s', '%s', %d, %d)",
+            from_id, to_id, control_head->content, timestamp, timestamp, frame_id, control_head->type);
     TRY{
-        PreparedStatement_T p = Connection_prepareStatement(conn, "INSERT INTO message_store(from_user, to_user, text, recv_time, send_time, frame_id, type) VALUES(?, ?, ?, ?, ?, ?, ?)");
-        PreparedStatement_setInt(p, 1, (int)from_id);
-        PreparedStatement_setInt(p, 2, (int)to_id);
-        PreparedStatement_setString(p, 3, control_head->content);
-        PreparedStatement_setTimestamp(p, 4, recv_time);
-        PreparedStatement_setTimestamp(p, 5, send_time);
-        PreparedStatement_setInt(p, 6, (int)frame_id);
-        PreparedStatement_setInt(p, 7, (int) control_head->type);
-        PreparedStatement_execute(p);
+        Connection_execute(conn, sql);
         //id = Connection_lastRowId(conn);
     }
     CATCH(SQLException) {
@@ -221,17 +207,19 @@ bool Database::InsertStoreMessage(Connection_T conn, ControlHead* control_head) 
  *  return: bool
  */ 
 bool Database::InsertStoreMessage(Connection_T conn, const MessageItem &msg, const time_t &recv_time) {
+    char sql[4096] = {0};
+    time_t send_time = time(NULL);
+    tm tm_recv_time, tm_send_time;
+    gmtime_r(&recv_time, &tm_recv_time);
+    gmtime_r(&send_time, &tm_send_time);
+    char recv_time_buf[64] = {0};
+    char send_time_buf[64] = {0};
+    strftime(recv_time_buf, sizeof(recv_time_buf), "%Y-%m-%d %H:%M:%S", &tm_recv_time);
+    strftime(send_time_buf, sizeof(send_time_buf), "%Y-%m-%d %H:%M:%S", &tm_send_time);
+    sprintf(sql, "INSERT INTO message_store(from_user, to_user, type, text, recv_time, send_time, frame_id) VALUES(%d, %d, %d, '%s', '%s', '%s', %d)",
+            msg.from_id, msg.to_id, msg.type, msg.content.c_str(), recv_time_buf, send_time_buf, msg.frame_id);
     TRY{
-        PreparedStatement_T p = Connection_prepareStatement(conn, "INSERT INTO message_store(from_user, to_user, type, text, recv_time, send_time, frame_id) VALUES(?, ?, ?, ?, ?, ?, ?)");
-        PreparedStatement_setInt(p, 1, (int)msg.to_id);
-        PreparedStatement_setInt(p, 2, (int)msg.from_id);
-        PreparedStatement_setInt(p, 3, (int)msg.type);
-        PreparedStatement_setString(p, 4, msg.content.c_str());
-        PreparedStatement_setTimestamp(p, 5, recv_time);
-        time_t send_time = time(NULL);
-        PreparedStatement_setTimestamp(p, 6, send_time);
-        PreparedStatement_setInt(p, 7, (int)msg.frame_id);
-        PreparedStatement_execute(p);
+        Connection_execute(conn, sql);
     }
     CATCH(SQLException) {
         LOG_INFO("Database InsertStoreMessage Failed: from_id=%u||to_id=%u||frame_id=%u||SQLException=%s", msg.from_id, msg.to_id, msg.frame_id, Connection_getLastError(conn));
@@ -251,20 +239,23 @@ bool Database::InsertOfflineMessage(Connection_T conn, ControlHead* control_head
     if (control_head == NULL) {
         return false;
     }
+    char sql[2048] = {0};
     uint32_t to_id = ntohl(control_head->to_id);
     uint32_t from_id = ntohl(control_head->from_id);
     uint16_t frame_id = ntohs(control_head->frame_id);
     time_t timestamp = time(NULL);
+    tm tm_recv_time, tm_retry_time;
+    gmtime_r(&timestamp, &tm_recv_time);
+    char recv_time_buf[64] = {0};  
+    strftime(recv_time_buf, sizeof(recv_time_buf), "%Y-%m-%d %H:%M:%S", &tm_recv_time);
+    timestamp += 10;
+    gmtime_r(&timestamp, &tm_retry_time);  
+    char retry_time_buf[64] = {0};
+    strftime(retry_time_buf, sizeof(retry_time_buf), "%Y-%m-%d %H:%M:%S", &tm_retry_time);
+    sprintf(sql, "INSERT INTO message_cache(from_user, to_user, type, text, recv_time, frame_id, retry_time) VALUES(%d, %d, %d, '%s', '%s', %d, '%s')",
+            from_id, to_id, control_head->type, control_head->content, recv_time_buf, frame_id, retry_time_buf);
     TRY{
-        PreparedStatement_T p = Connection_prepareStatement(conn, "INSERT INTO message_cache(from_user, to_user, type, text, recv_time, frame_id, retry_time) VALUES(?, ?, ?, ?, ?, ?, ?)");
-        PreparedStatement_setInt(p, 1, (int)from_id);
-        PreparedStatement_setInt(p, 2, (int)to_id);
-        PreparedStatement_setInt(p, 3, (int) control_head->type);
-        PreparedStatement_setString(p, 4,  control_head->content);
-        PreparedStatement_setTimestamp(p, 5, timestamp);
-        PreparedStatement_setInt(p, 6, (int)frame_id);
-        PreparedStatement_setTimestamp(p, 7, timestamp + 10);
-        PreparedStatement_execute(p);
+        Connection_execute(conn, sql);
     }
     CATCH(SQLException) {
         LOG_INFO("Database InsertOfflineMessage Failed: from_id=%u||to_id=%u||frame_id=%u||SQLException=%s", from_id, to_id, frame_id, Connection_getLastError(conn));
@@ -283,12 +274,11 @@ bool Database::InsertOfflineMessage(Connection_T conn, ControlHead* control_head
  *          @frame_id
  */ 
 bool Database::DeleteOfflineMessage(Connection_T conn, const uint32_t &from_id, const uint32_t &to_id, const uint16_t frame_id) {
+    char sql[1024] = {0};
+    sprintf(sql, "DELETE FROM message_cache WHERE from_user = ? AND to_user = ? AND frame_id = ?",
+            from_id, to_id, frame_id);
     TRY{
-        PreparedStatement_T p = Connection_prepareStatement(conn, "DELETE FROM message_cache WHERE from_user = ? AND to_user = ? AND frame_id = ? ");
-        PreparedStatement_setInt(p, 1, (int)from_id);
-        PreparedStatement_setInt(p, 2, to_id);
-        PreparedStatement_setInt(p, 3, frame_id);
-        PreparedStatement_execute(p);
+        Connection_execute(conn, sql);
     }
     CATCH(SQLException) {
         LOG_INFO("Database DeleteOfflineMessage Failed: from_id=%u||to_id=%u||frame_id=%u||SQLException=%s", from_id, to_id, frame_id, Connection_getLastError(conn));
@@ -302,14 +292,15 @@ bool Database::DeleteOfflineMessage(Connection_T conn, const uint32_t &from_id, 
  *  function UpdateOfflineMessage
  */ 
 void Database::UpdateOfflineMessage(Connection_T conn, const uint32_t &from_id, const uint32_t &to_id, const uint16_t frame_id, const int &retry_num, const time_t &timestamp) {
+    char sql[2048] = {0};
+    tm tm_time;
+    gmtime_r(&timestamp, &tm_time);
+    char time_buf[64] = {0};
+    strftime(time_buf, sizeof(time_buf), "%Y-%m-%d %H:%M:%S", &tm_time);
+    sprintf(sql, "UPDATE message_cache SET retry_num = %d, retry_time = '%s' WHERE from_user = %d AND to_user = %d AND frame_id = %d",
+            retry_num, time_buf, from_id, to_id, frame_id);
     TRY{
-        PreparedStatement_T p = Connection_prepareStatement(conn, "UPDATE message_cache SET retry_num = ?, retry_time = ? WHERE from_user = ? AND to_user = ? AND frame_id = ?");
-        PreparedStatement_setInt(p, 1, retry_num);
-        PreparedStatement_setTimestamp(p, 2, timestamp);
-        PreparedStatement_setInt(p, 3, (int)from_id);
-        PreparedStatement_setInt(p, 4, (int)to_id);
-        PreparedStatement_setInt(p, 5, (int)frame_id);
-        PreparedStatement_execute(p);
+        Connection_execute(conn, sql);
     }
     CATCH(SQLException) {
         LOG_INFO("Database UpdateOfflineMessage Failed: from_id=%u||to_id=%u||frame_id=%u||SQLException=%s", from_id, to_id, frame_id, Connection_getLastError(conn));
@@ -327,11 +318,16 @@ void Database::UpdateOfflineMessage(Connection_T conn, const uint32_t &from_id, 
  */
 void Database::GetAllOfflineMessage(Connection_T conn, const int &max_retry_num, const time_t &retry_interval, std::vector<MessageItem> &messages) {
     time_t cur_timestamp = time(NULL);
+    char sql[1024] = {0};
+    tm tm_cur;
+    gmtime_r(&cur_timestamp, &tm_cur);
+    char cur_buf[64] = {0};
+    strftime(cur_buf, sizeof(cur_buf), "%Y-%m-%d %H:%M:%S", &tm_cur);
+    sprintf(sql, "SELECT to_user, from_user, frame_id, type, text, retry_num FROM message_cache WHERE retry_num < %d AND retry_time <= '%s'",
+            max_retry_num, cur_buf);
+    PreparedStatement_T p = Connection_prepareStatement(conn, "UPDATE message_cache SET retry_num = ?, retry_time = ? WHERE to_user = ? AND from_user = ? AND frame_id = ?");
     TRY{
-        PreparedStatement_T p = Connection_prepareStatement(conn, "SELECT to_user, from_user, frame_id, type, text, retry_num FROM message_cache WHERE retry_num < ? AND retry_time <= ?");
-        PreparedStatement_setInt(p, 1, max_retry_num);
-        PreparedStatement_setTimestamp(p, 2, cur_timestamp);
-        ResultSet_T r = PreparedStatement_executeQuery(p);
+        ResultSet_T r = Connection_executeQuery(conn, sql);
         while(ResultSet_next(r)) {
             MessageItem message;
             message.to_id = ResultSet_getInt(r, 1);
@@ -343,13 +339,12 @@ void Database::GetAllOfflineMessage(Connection_T conn, const int &max_retry_num,
             int retry_num = ResultSet_getInt(r, 6);
             ++retry_num;
             messages.push_back(message);
-            PreparedStatement_T pu = Connection_prepareStatement(conn, "UPDATE message_cache SET retry_num = ?, retry_time = ? WHERE to_user = ? AND from_user = ? AND frame_id = ?");
-            PreparedStatement_setInt(pu, 1, retry_num);
-            PreparedStatement_setTimestamp(pu, 2, cur_timestamp + retry_num * retry_interval);
-            PreparedStatement_setInt(pu, 3, (int)message.to_id);
-            PreparedStatement_setInt(pu, 4, (int)message.from_id);
-            PreparedStatement_setInt(pu, 5, (int)message.frame_id);
-            PreparedStatement_execute(pu);
+            PreparedStatement_setInt(p, 1, retry_num);
+            PreparedStatement_setTimestamp(p, 2, cur_timestamp + retry_num * retry_interval);
+            PreparedStatement_setInt(p, 3, (int)message.to_id);
+            PreparedStatement_setInt(p, 4, (int)message.from_id);
+            PreparedStatement_setInt(p, 5, (int)message.frame_id);
+            PreparedStatement_execute(p);
         }
     }
     CATCH(SQLException) {
@@ -363,10 +358,10 @@ void Database::GetAllOfflineMessage(Connection_T conn, const int &max_retry_num,
  */
 bool Database::IsExistUser(Connection_T conn, const uint32_t &user_id) {
     bool res = true;
+    char sql[1024] = {0};
+    sprintf(sql, "SELECT * FROM user_info WHERE id = %d", user_id);
     TRY{
-        PreparedStatement_T p = Connection_prepareStatement(conn, "SELECT * FROM user_info WHERE id = ?");
-        PreparedStatement_setInt(p, 1, (int)user_id);
-        ResultSet_T r = PreparedStatement_executeQuery(p);
+        ResultSet_T r = Connection_executeQuery(conn, sql);
         if (ResultSet_next(r)) {
             res = true;
         }
@@ -383,12 +378,11 @@ bool Database::IsExistUser(Connection_T conn, const uint32_t &user_id) {
 }
 
 bool Database::GetOfflineMessage(Connection_T conn, const uint32_t &from_id, const uint32_t &to_id, const uint16_t &frame_id, MessageItem &msg, time_t &recv_time) {
+    char sql[2048] = {0};
+    sprintf(sql, "SELECT to_user, from_user, frame_id, type, text, recv_time  FROM message_cache WHERE from_user = %d AND to_user = %d AND frame_id = %d",
+            from_id, to_id, frame_id);
     TRY{
-        PreparedStatement_T p = Connection_prepareStatement(conn, "SELECT to_user, from_user, frame_id, type, text, recv_time  FROM message_cache WHERE from_user = ? AND to_user = ? AND frame_id = ?");
-        PreparedStatement_setInt(p, 1, (int)from_id);
-        PreparedStatement_setInt(p, 2, (int)to_id);
-        PreparedStatement_setInt(p, 3, (int)frame_id);
-        ResultSet_T r = PreparedStatement_executeQuery(p);
+        ResultSet_T r = Connection_executeQuery(conn, sql);
         if (ResultSet_next(r)) {
             msg.to_id = ResultSet_getInt(r, 1);
             msg.from_id = ResultSet_getInt(r, 2);
