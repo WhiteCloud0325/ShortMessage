@@ -78,7 +78,7 @@ bool Controller::Init(libconfig::Config &config) {
 
 void Controller::Run() {
     for (int i = 0; i < thread_cnt_; ++i) {
-        group_.create_thread((boost::bind(&Controller::Execute, this));
+        group_.create_thread((boost::bind(&Controller::Execute, this)));
     } 
     boost::shared_ptr<apache::thrift::concurrency::ThreadManager> manager;
     try {

@@ -6,7 +6,8 @@
 
 using namespace im;
 
-bool MobileManager::Init() {
+bool MobileManager::Init(Database* database) {
+    database_ = database;
     return true;
 }
 

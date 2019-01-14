@@ -6,7 +6,8 @@
 #include <arpa/inet.h>
 using namespace im;
 
-bool MessageManager::Init(Database* database) {
+bool MessageManager::Init(Database *database) {
+    database_ = database;
     return true;
 }
 

@@ -3,7 +3,7 @@
 
 UserManager::~UserManager(){}
 
-bool UserManager::Init(Database *database){
+bool UserManager::Init(Database* database){
     database_ = database;
     return true;
 }

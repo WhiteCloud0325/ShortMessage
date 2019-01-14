@@ -6,12 +6,14 @@
 #include "logic/protocol.h"
 class MobileManager {
 public:
-    MobileManager(): database_(NULL){}
+    MobileManager():database_(NULL){}
     ~MobileManager(){}
-    bool Init();
+    bool Init(Database *database);
     void ProcessLogin(const ControlHead * control_head, Connection_T conn);
     void ProcessLogout(const ControlHead * control_head, Connection_T conn);
     void ProcessMobileRequest(const ControlHead * control_head, Connection_T conn);
+private:
+    Database *database_;
 };
 
 

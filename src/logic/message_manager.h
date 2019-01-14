@@ -5,14 +5,16 @@
 
 class MessageManager {
 public:
-    MessageManager():{}
+    MessageManager():database_(NULL){}
     ~MessageManager() {}
-    bool Init();
+    bool Init(Database *database);
     void ProcessSimpleMessage(ControlHead *control_head, Connection_T conn);
     void ProcessForwardNoAckMessage(ControlHead *control_head, Connection_T conn);
     void ProcessBackwardNoAckMessage(ControlHead *control_head, Connection_T conn);
     void ProcessCompleteMessage(ControlHead *control_head, Connection_T conn);
     void ProcessReceipt(ControlHead *control_head, Connection_T conn);
+private:
+    Database *database_;
 };
 
 #endif /* define message_manager_h_ */
