@@ -124,7 +124,7 @@ bool Controller::Pop(std::string &str) {
 }
 
 void Controller::Execute() {
-    Connetcion_T conn = NULL;
+    Connection_T conn = NULL;
     while (!stop_) {
         if (conn == NULL) {
             conn = database_->GetConnection();
