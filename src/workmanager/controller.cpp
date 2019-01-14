@@ -127,7 +127,7 @@ void Controller::Execute() {
     Connection_T conn = NULL;
     while (!stop_) {
         if (conn == NULL) {
-            conn = database_->GetConnection();
+            conn = database_.GetConnection();
         }
         if (conn == NULL) {
             sleep(1);
@@ -135,7 +135,7 @@ void Controller::Execute() {
         }
         if (Connection_ping(conn)) {
             std::string request;
-            if (!Pop(str)) {
+            if (!Pop(request)) {
                 continue;
             }
             timeval start;
@@ -143,30 +143,30 @@ void Controller::Execute() {
             ControlHead* control_head = (ControlHead*)request.c_str();
             switch (control_head->type) {
                 case Login:
-                    controller_->mobile_manager_.ProcessLogin(control_head, conn);
+                    mobile_manager_.ProcessLogin(control_head, conn);
                     break;
                 case Logout:
-                    controller_->mobile_manager_.ProcessLogout(control_head, conn);
+                    mobile_manager_.ProcessLogout(control_head, conn);
                     break; 
                 case MOBILE_MANAGER_REQUEST:
-                    controller_->mobile_manager_.ProcessMobileRequest(control_head, conn);
+                    mobile_manager_.ProcessMobileRequest(control_head, conn);
                     break;
                 case SIMPLE_MESSAGE:
-                    controller_->message_manager_.ProcessSimpleMessage(control_head, conn);
+                    message_manager_.ProcessSimpleMessage(control_head, conn);
                     break;
                 case FORWARD_NOACK_MESSAGE:
-                    controller_->message_manager_.ProcessForwardNoAckMessage(control_head, conn);
+                    message_manager_.ProcessForwardNoAckMessage(control_head, conn);
                     break;
                 case BACKWARD_NOACK_MESSAGE:
-                    controller_->message_manager_.ProcessBackwardNoAckMessage(control_head, conn);
+                    message_manager_.ProcessBackwardNoAckMessage(control_head, conn);
                     break;
                 case COMPLETE_MESSAGE:
-                    controller_->message_manager_.ProcessCompleteMessage(control_head, conn);
+                    message_manager_.ProcessCompleteMessage(control_head, conn);
                     break;
                 case INQUIRE_MESSAGE_REQUEST:
                     break;
                 case RECEIPTE:
-                    controller_->message_manager_.ProcessReceipt(control_head, conn);
+                    message_manager_.ProcessReceipt(control_head, conn);
                     break;
                 default:
                     break;
