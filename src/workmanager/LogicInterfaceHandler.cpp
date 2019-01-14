@@ -2,6 +2,7 @@
 #include "logic/protocol.h"
 #include <string>
 #include <iostream>
+#include <sys/time.h>
 #include <time.h>
 using namespace im;
 
@@ -17,7 +18,8 @@ void LogicInterfaceHandler::AccessToLogic(const std::string& request) {
         printf("%02x ", (uint8_t)request[i]);
     }
     printf("\n");*/
-    clock_t start = clock();
+    timeval start;
+    gettimeofday(&start, NULL);
     ControlHead* control_head = (ControlHead*)request.c_str();
     switch (control_head->type) {
         case Login:
@@ -49,7 +51,8 @@ void LogicInterfaceHandler::AccessToLogic(const std::string& request) {
         default:
             break;
     }
-    clock_t end = clock();
-    double endtime = (double)(end - start) / CLOCKS_PER_SEC;
-    LOG_DEBUG("AccessToLogic: time=%f", endtime);
+    timeval end;
+    gettimeofday(&end, NULL);
+    uint32_t cost_time = (end.tv_sec - start.tv_sec) * 1000000 + end.tv_usec - start.tv_usec;
+    LOG_DEBUG("AccessToLogic: time=%ld", cost_time);
 }
