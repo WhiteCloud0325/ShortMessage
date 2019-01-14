@@ -119,10 +119,10 @@ bool Database::UpdateSateCover(Connection_T conn, const uint32_t &user_id, const
 
 std::vector<SateParam> Database::GetSateCover(Connection_T conn, const int32_t &user_id) {
     std::vector<SateParam> res; 
+    std::string sql = "SELECT SNR_1, SNR_2, SNR_3, SNR_4, SNR_5, SNR_6, SNR_7, SNR_8, SNR_9, SNR_10	 FROM sate_cover WHERE user_id = ";
+    sql += std::to_string(user_id);
     TRY {
-        PreparedStatement_T p = Connection_prepareStatement(conn, "SELECT SNR_1, SNR_2, SNR_3, SNR_4, SNR_5, SNR_6, SNR_7, SNR_8, SNR_9, SNR_10	 FROM sate_cover WHERE user_id = ?");
-        PreparedStatement_setInt(p, 1, (int)user_id);
-        ResultSet_T r = PreparedStatement_executeQuery(p);
+        ResultSet_T r = Connection_executeQuery(conn, sql.c_str());
         if (ResultSet_next(r)) {
              for (int i = 1; i <= MAX_BEAM_NUM; ++i) {
                  double temp = ResultSet_getDouble(r, i);
@@ -149,10 +149,10 @@ std::vector<SateParam> Database::GetSateCover(Connection_T conn, const int32_t &
 
 int Database::GetOfflineMessageNum(Connection_T conn, uint32_t &user_id) {
     int res = 0;
+    std::string sql = "SELECT COUNT(*) FROM message_cache WHERE to_user = ";
+    sql += std::to_string(user_id);
     TRY {
-        PreparedStatement_T p = Connection_prepareStatement(conn, "SELECT COUNT(*) FROM message_cache WHERE to_user = ?");
-        PreparedStatement_setInt(p, 1, (int)user_id);
-        ResultSet_T r = PreparedStatement_executeQuery(p);
+        ResultSet_T r = Connection_executeQuery(conn, sql.c_str());
         if (ResultSet_next(r)) {
             res = ResultSet_getInt(r, 1);
         }
@@ -179,7 +179,19 @@ bool Database::InsertStoreMessage(Connection_T conn, ControlHead* control_head) 
     uint32_t from_id = ntohl(control_head->from_id);
     uint16_t frame_id = ntohs(control_head->frame_id);
     time_t recv_time = time(NULL);
-    time_t send_time = recv_time;
+    tm* tm_recv_time = gmtime(recv_time);
+    char buf[64] = {0};
+    strftime(buf, sizeof(buf) - 1, "%Y-%m-%d %H:%M:%S", tm);
+    std::string timestamp(buf);
+    std::string sql = "INSERT INTO message_store(from_user, to_user, text, recv_time, send_time, frame_id, type) VALUES(";
+    sql += std::to_string(from_id) + ",";
+    sql += std::to_string(to_id) + ",";
+    sql += control_head->content + ",";
+    sql += std::to_string(recv_time) + ",";
+    sql += std::to_string(from_id) + ",";
+    sql += std::to_string(from_id) + ",";
+    sql += std::to_string(from_id) + ",";
+    
     TRY{
         PreparedStatement_T p = Connection_prepareStatement(conn, "INSERT INTO message_store(from_user, to_user, text, recv_time, send_time, frame_id, type) VALUES(?, ?, ?, ?, ?, ?, ?)");
         PreparedStatement_setInt(p, 1, (int)from_id);
