@@ -45,6 +45,10 @@ bool QosSendDaemon::Init(const libconfig::Setting &setting, Database *database) 
 void QosSendDaemon::Start() {
     while(!stop_) {
         Connection_T conn = database_->GetConnection();
+        if (conn == NULL) {
+            sleep(1);
+            continue;
+        }
         std::vector<MessageItem> messages;
         database_->GetAllOfflineMessage(conn, max_retry_count_, msg_interval_, messages);
         for(auto &message: messages) {
