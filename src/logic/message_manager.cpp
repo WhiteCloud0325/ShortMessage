@@ -6,11 +6,6 @@
 #include <arpa/inet.h>
 using namespace im;
 
-bool MessageManager::Init(Database *database) {
-    database_ = database;
-    return true;
-}
-
 /**
  *  function: ProcessSimpleMessage
  *  处理 0x40消息，不需要向发送方确认，也不需要接收方确认，

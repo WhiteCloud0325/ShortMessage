@@ -6,11 +6,6 @@
 
 using namespace im;
 
-bool MobileManager::Init(Database* database) {
-    database_ = database;
-    return true;
-}
-
 void MobileManager::ProcessLogin(const ControlHead* control_head, Connection_T conn) {
     uint32_t user_id = ntohl(control_head->from_id);
     MobileRequest *mobile_request = (MobileRequest*) (control_head->content);
