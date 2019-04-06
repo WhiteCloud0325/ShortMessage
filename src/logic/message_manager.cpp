@@ -26,6 +26,7 @@ void MessageManager::ProcessSimpleMessage(ControlHead *control_head, Connection_
     if (!sates.empty()) {
         std::string str = MessageEncode(control_head);
         SendHelper::GetInstance()->SendMessage(to_id, str, sates, 5);
+        LOG_DEBUG("Message ProcessCompleteMessage SendMessage: from_id=%ld||to_id=%ld||frame_id=%ld", from_id, to_id, ntohs(control_head->frame_id));
     }
     return;
 }

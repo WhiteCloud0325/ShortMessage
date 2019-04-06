@@ -14,8 +14,8 @@ void LogicInterfaceHandler::AccessToLogic(const std::string& request) {
     if (request.empty()) {
         return;
     }
-    /*for (int i = 0; i < request.size(); ++i) {
-        printf("%02x ", (uint8_t)request[i]);
+  /*  for (int i = 0; i < request.size(); ++i) {
+        printf("%02x ", (uint32_t)request[i]);
     }
     printf("\n");*/
     controller_->Push(request);
