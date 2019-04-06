@@ -3,15 +3,12 @@
 
 #include <string>
 #include "tools/database.h"
+#include "logic/manager.h"
 
-
-class UserManager  {
+class UserManager: public Manager {
 public:
-    UserManager():database_(NULL){}
+    UserManager(){}}
     ~UserManager();
-    bool Init(Database *database);
-private:
-    Database *database_;
 };
 
 #endif /* define USER_MANAGER_H_*/
