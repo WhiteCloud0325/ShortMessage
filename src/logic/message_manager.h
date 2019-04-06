@@ -2,8 +2,8 @@
 #define message_manager_h_
 #include "logic/protocol.h"
 #include "logic/manager.h"
-#include 
-class MessageManager {
+
+class MessageManager: public Manager {
 public:
     MessageManager(){}
     ~MessageManager() {}

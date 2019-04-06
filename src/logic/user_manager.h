@@ -7,8 +7,8 @@
 
 class UserManager: public Manager {
 public:
-    UserManager(){}}
-    ~UserManager();
+    UserManager(){}
+    ~UserManager(){};
 };
 
 #endif /* define USER_MANAGER_H_*/

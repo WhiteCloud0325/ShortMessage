@@ -5,12 +5,12 @@
 class Manager{
 public:
     Manager():database_(NULL){}
-    ~Manager():{}
-    virtual Init(Database *database) {
+    ~Manager(){}
+    virtual bool Init(Database *database) {
         database_ = database;
         return true;
     }
-private:
+protected:
     Database *database_;
 };
 

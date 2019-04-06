@@ -5,9 +5,9 @@
 #include "tools/qos_send_daemon.h"
 #include "logic/protocol.h"
 #include "logic/manager.h"
-class MobileManager: public {
+class MobileManager: public Manager {
 public:
-    MobileManager():{}
+    MobileManager(){}
     ~MobileManager(){}
     void ProcessLogin(const ControlHead * control_head, Connection_T conn);
     void ProcessLogout(const ControlHead * control_head, Connection_T conn);
