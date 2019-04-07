@@ -27,7 +27,7 @@ bool Database::Init(const libconfig::Setting &setting) {
         }
     }
     catch(...) {
-        LOG_INFO("Database init config exception");
+        LOG_ERROR("Database init config exception");
         return false;
     }
     try {
@@ -39,7 +39,7 @@ bool Database::Init(const libconfig::Setting &setting) {
         ConnectionPool_start(pool_);
     }
     catch (...) {
-        LOG_INFO("Database init ConnectionPool start exception");
+        LOG_ERROR("Database init ConnectionPool start exception");
         return false;
     }
     return true;
@@ -100,7 +100,7 @@ bool Database::UpdateSateCover(Connection_T conn, const uint32_t &user_id, const
         Connection_execute(conn, sql.c_str());
     }
     CATCH(SQLException) {
-        LOG_INFO("Database UpdateSateCover Failed: userid=%lld||SQLException=%s", user_id, Connection_getLastError(conn));
+        LOG_ERROR("Database UpdateSateCover Failed: userid=%lld||SQLException=%s", user_id, Connection_getLastError(conn));
         return false;
     }
     END_TRY;
@@ -133,7 +133,7 @@ std::vector<SateParam> Database::GetSateCover(Connection_T conn, const int32_t &
         }
     }
     CATCH(SQLException) {
-        LOG_INFO("Database SelectSateCover Failed: user_id=%lld||SQLException=%s", user_id, Connection_getLastError(conn));
+        LOG_ERROR("Database SelectSateCover Failed: user_id=%lld||SQLException=%s", user_id, Connection_getLastError(conn));
     }
     END_TRY;
     return res;
@@ -158,7 +158,7 @@ int Database::GetOfflineMessageNum(Connection_T conn, uint32_t &user_id) {
         }
     }
     CATCH(SQLException) {
-        LOG_INFO("Database GetOfflineMessageNum Failed: user_id=%lld||SQLException=%s", user_id, Connection_getLastError(conn));
+        LOG_ERROR("Database GetOfflineMessageNum Failed: user_id=%lld||SQLException=%s", user_id, Connection_getLastError(conn));
     }
     END_TRY;
     return res;
@@ -191,7 +191,7 @@ bool Database::InsertStoreMessage(Connection_T conn, ControlHead* control_head) 
         //id = Connection_lastRowId(conn);
     }
     CATCH(SQLException) {
-        LOG_INFO("Database InsertStoreMessage Failed: from_id=%u||to_id=%u||frame_id=%u||SQLException=%s", from_id, to_id, frame_id, Connection_getLastError(conn));
+        LOG_ERROR("Database InsertStoreMessage Failed: from_id=%u||to_id=%u||frame_id=%u||SQLException=%s", from_id, to_id, frame_id, Connection_getLastError(conn));
         return false;
     }
     END_TRY;
@@ -222,7 +222,7 @@ bool Database::InsertStoreMessage(Connection_T conn, const MessageItem &msg, con
         Connection_execute(conn, sql);
     }
     CATCH(SQLException) {
-        LOG_INFO("Database InsertStoreMessage Failed: from_id=%u||to_id=%u||frame_id=%u||SQLException=%s", msg.from_id, msg.to_id, msg.frame_id, Connection_getLastError(conn));
+        LOG_ERROR("Database InsertStoreMessage Failed: from_id=%u||to_id=%u||frame_id=%u||SQLException=%s", msg.from_id, msg.to_id, msg.frame_id, Connection_getLastError(conn));
         return false;
     }
     END_TRY;
@@ -258,7 +258,7 @@ bool Database::InsertOfflineMessage(Connection_T conn, ControlHead* control_head
         Connection_execute(conn, sql);
     }
     CATCH(SQLException) {
-        LOG_INFO("Database InsertOfflineMessage Failed: from_id=%u||to_id=%u||frame_id=%u||SQLException=%s", from_id, to_id, frame_id, Connection_getLastError(conn));
+        LOG_ERROR("Database InsertOfflineMessage Failed: from_id=%u||to_id=%u||frame_id=%u||SQLException=%s", from_id, to_id, frame_id, Connection_getLastError(conn));
         return false;
     }
     END_TRY;
@@ -281,7 +281,7 @@ bool Database::DeleteOfflineMessage(Connection_T conn, const uint32_t &from_id, 
         Connection_execute(conn, sql);
     }
     CATCH(SQLException) {
-        LOG_INFO("Database DeleteOfflineMessage Failed: from_id=%u||to_id=%u||frame_id=%u||SQLException=%s", from_id, to_id, frame_id, Connection_getLastError(conn));
+        LOG_ERROR("Database DeleteOfflineMessage Failed: from_id=%u||to_id=%u||frame_id=%u||SQLException=%s", from_id, to_id, frame_id, Connection_getLastError(conn));
         return false;
     }
     END_TRY;
@@ -303,7 +303,7 @@ void Database::UpdateOfflineMessage(Connection_T conn, const uint32_t &from_id, 
         Connection_execute(conn, sql);
     }
     CATCH(SQLException) {
-        LOG_INFO("Database UpdateOfflineMessage Failed: from_id=%u||to_id=%u||frame_id=%u||SQLException=%s", from_id, to_id, frame_id, Connection_getLastError(conn));
+        LOG_ERROR("Database UpdateOfflineMessage Failed: from_id=%u||to_id=%u||frame_id=%u||SQLException=%s", from_id, to_id, frame_id, Connection_getLastError(conn));
     }
     END_TRY;
 }
@@ -348,7 +348,7 @@ void Database::GetAllOfflineMessage(Connection_T conn, const int &max_retry_num,
         }
     }
     CATCH(SQLException) {
-        LOG_INFO("Database GetAllOfflineMessage Failed: SQLException=%s", Connection_getLastError(conn));
+        LOG_ERROR("Database GetAllOfflineMessage Failed: SQLException=%s", Connection_getLastError(conn));
     }
     END_TRY;
 }
@@ -370,7 +370,7 @@ bool Database::IsExistUser(Connection_T conn, const uint32_t &user_id) {
         }
     }
     CATCH(SQLException) {
-        LOG_INFO("Database IsExistUser Failed: user_id=%u||SQLException=%s", user_id, Connection_getLastError(conn));
+        LOG_ERROR("Database IsExistUser Failed: user_id=%u||SQLException=%s", user_id, Connection_getLastError(conn));
         res = false;
     }
     END_TRY;
@@ -394,9 +394,330 @@ bool Database::GetOfflineMessage(Connection_T conn, const uint32_t &from_id, con
         }
     }
     CATCH(SQLException) {
-        LOG_INFO("Database GetOfflineMessage Failed: from_id=%u||to_id=%u||fram_id=%u", from_id, to_id, frame_id);
+        LOG_ERROR("Database GetOfflineMessage Failed: from_id=%u||to_id=%u||fram_id=%u", from_id, to_id, frame_id);
         return false;
     }
     END_TRY;
     return true;
+}
+
+/**
+ * function: FriendAdd
+ * desc: add a friend of user
+ * params:
+ *      @conn,
+ *      @user_id,
+ *      @friend_id,
+ * return: bool, true(success), false(error)
+*/
+bool Database::FriendAdd(Connection_T conn, const uint32_t &user_id, const uint32_t &friend_id) {
+    bool res = true;
+    char sql1[1024] = {0};
+    char sql2[1024] = {0};
+
+    sprintf(sql1, 
+            "INSERT INTO relationship(user_1, user_2)  SELECT %d, %d  WHERE NOT EXISTS (SELECT * from relationship WHERE user_1 = %d and user_2 = %d)", 
+            user_id, friend_id, user_id, friend_id);
+    sprintf(sql2, 
+            "INSERT INTO relationship(user_1, user_2)  SELECT %d, %d  WHERE NOT EXISTS (SELECT * from relationship WHERE user_1 = %d and user_2 = %d)", 
+            friend_id, user_id, friend_id, user_id);
+ 
+    TRY {
+        Connection_beginTransaction(conn);
+        Connection_execute(conn, sql1);
+        Connection_execute(conn, sql2);
+        Connection_commit(conn);
+    }
+    CATCH(SQLException) {
+        res = false;
+        LOG_ERROR("Database FriendAdd Falied: SQLException=%s", Connection_getLastError(conn));
+        Connection_rollback(conn);
+    }
+    END_TRY;
+    return res;
+}
+
+/**
+ *  function: FriendDelete
+ *  params: 
+ *      @conn, Connection_T
+ *      @user_id,
+ *      @friend_id
+ *  return: bool
+ */
+bool Database::FriendDelete(Connection_T conn, const uint32_t &user_id, const uint32_t &friend_id) {
+    bool res = true;
+    char sql1[1024] = {0};
+    char sql2[1024] = {0};
+    sprintf(sql1, "DELETE FROM relationship where user_1 = %d AND user_2 = %d", user_id, friend_id);
+    sprintf(sql2, "DELETE FROM relationship where user_1 = %d AND user_2 = %d", friend_id, user_id);
+
+    TRY {
+        Connection_beginTransaction(conn);
+        Connection_execute(conn, sql1);
+        Connection_execute(conn, sql2);
+        Connection_commit(conn);
+    }
+    CATCH(SQLException) {
+        res = false;
+        LOG_ERROR("Database FriendDelete Failed: SQLException=%s", Connection_getLastError(conn));
+    }
+    END_TRY;
+    return res;
+}
+
+/**
+ *  function: FriendList
+ *  params:
+ *      @conn,
+ *      @user_id,
+ *      @friends, return value
+ *  return: bool, success true, exception false;
+ */
+bool Database::FriendList(Connection_T conn, const uint32_t &user_id, std::vector<UserInfo> &friends) {
+    bool res = true;
+    char sql[1024] = {0};
+    sprintf(sql, 
+            "SELECT user_info.id, user_info.name FROM user_info, relationship WHERE relationship.user_1 = %d AND user_info.id = relationship.user_2",
+            user_id);
+    TRY {
+        ResultSet_T r = Connection_executeQuery(conn, sql);
+        while(ResultSet_next(r)) {
+            friends.emplace_back((uint32_t)ResultSet_getInt(r, 1), ResultSet_getString(r, 2));
+        }
+    }
+    CATCH(SQLException) {
+        res = false;
+        LOG_ERROR("Database FriendList Falied: user_id=%d||SQLException=%s", user_id, Connection_getLastError(conn));
+    }
+    END_TRY;
+    return res;
+    
+}
+
+/*  function: GroupCreate
+    params:
+        @conn, Connecton_T
+        @user_id, uint32_t
+        @group_name, string
+        @members
+    return:
+        gourp_id, int
+*/
+int Database::GroupCreate(Connection_T conn, const uint32_t &user_id, const std::string &group_name, std::vector<uint32_t> &members) {
+    char create_sql[128] = {0};
+    int group_id = -1;
+    sprintf(create_sql, "INSERT INTO group_info SET group_name = \"%s\"",group_name.c_str());
+    members.push_back(user_id);
+    std::string add_members = "INSERT INTO group_members(gid, uid) VALUES";
+    TRY {
+        Connection_beginTransaction(conn);
+        Connection_execute(conn, create_sql);
+        group_id = Connection_lastRowId(conn);
+        for (int i = 0; i < members.size(); ++i) {
+            add_members += "(" + std::to_string(group_id) + "," + std::to_string(members[i]) + "),"; 
+        }
+        add_members.pop_back();
+        Connection_execute(conn, add_members.c_str());
+        Connection_commit(conn);
+    }
+    CATCH(SQLException) {
+        group_id = -1;
+        LOG_ERROR("Database CreateGroup Failed: SQLException=%s", Connection_getLastError(conn));
+        Connection_rollback(conn);
+    }
+    END_TRY;
+    return group_id;
+}
+
+/*
+    function: GroupAddMember
+    desc: add a group of members;
+    params:
+        @conn,
+        @gourp_id,
+        @members
+*/
+bool Database::GroupAddMember(Connection_T conn, const uint32_t &group_id, const  std::vector<uint32_t> &members) {
+    bool res = true;
+    if (members.empty()) {
+        LOG_ERROR("Database GroupAddMemeber Failed: members empty");
+        return false;
+    }
+    std::string add_members = "INSERT INTO group_members(gid, uid) VALUES";
+    for (int i = 0; i < members.size(); ++i) {
+        add_members += "(" + std::to_string(group_id) + "," + std::to_string(members[i]) + "),";
+    }
+    add_members.pop_back();
+    TRY {
+        Connection_execute(conn, add_members.c_str());
+    }
+    CATCH(SQLException) {
+        res = false;
+        LOG_ERROR("Database GroupAddMember Failed: SQLException=%s", Connection_getLastError(conn));
+    }
+    END_TRY;
+    return res;
+}
+
+/**
+    function: GroupDeleteMember
+    desc: delete a member from group
+    params:
+        @conn,
+        @group_id,
+        @member
+    return: bool
+*/
+bool Database::GroupDeleteMember(Connection_T conn, const uint32_t &group_id, const uint32_t &member) {
+    bool res = true;
+    char sql[256] = {0};
+    sprintf(sql, "DELETE FROM group_members WHERE gid = %d AND uid = %d", (int)group_id, (int)member);
+    TRY {
+        Connection_execute(conn, sql);
+    }
+    CATCH(SQLException) {
+        res = false;
+        LOG_ERROR("Database GroupDeleteMember Failed: SQLException=%s", Connection_getLastError(conn));
+    }
+    END_TRY;
+    return res;
+}
+
+/**
+    function: GroupListByUserId
+    desc: list all gourps of the user
+    params:
+        @conn,
+        @user_id,
+        @groups, return value
+    return: bool
+*/
+bool Database::GroupListByUserId(Connection_T conn, const uint32_t &user_id, std::vector<GroupInfo> &groups) {
+    bool res = true;
+    char sql[256] = {0};
+    sprintf(sql, "SELECT group_info.gid, group_info.group_name FROM group_info, group_members WHERE group_info.gid = group_members.gid AND group_members.uid = %d", user_id);
+    TRY {
+        ResultSet_T r = Connection_executeQuery(conn, sql);
+        while(ResultSet_next(r)){
+            groups.emplace_back((uint32_t)ResultSet_getInt(r, 1), ResultSet_getString(r, 2));
+        }
+    }
+    CATCH(SQLException){
+        res = false;
+        LOG_ERROR("Database GroupListByUserId Failed: SQLException=%s", Connection_getLastError(conn));
+    }
+    END_TRY;
+    return res;
+}
+
+/**
+    function: GroupListUser
+    desc:list users of the group
+    params:
+        @conn,
+        @group_id,
+        @user_infos, return value
+    return: bool
+*/
+bool Database::GroupListUser(Connection_T conn, const uint32_t &group_id, std::vector<UserInfo> &user_infos) {
+    bool res = true;
+    char sql[256] = {0};
+    sprintf(sql,"SELECT user_info.id, user_info.name FROM user_info, group_members WHERE group_members.gid = %d AND group_members.uid = user_info.id", group_id);
+    TRY {
+        ResultSet_T r = Connection_executeQuery(conn, sql);
+        while(ResultSet_next(r)) {
+            user_infos.emplace_back(ResultSet_getInt(r, 1), ResultSet_getString(r, 2));
+        }
+    }
+    CATCH(SQLException) {
+        res = false;
+        LOG_ERROR("Database GroupListUser Failed: SQLException=%s", Connection_getLastError(conn));
+    }
+    END_TRY;
+    return res;
+}
+
+/**
+ *  function: GroupMessageInsert
+ *  desc: Insert message into group_msgs
+ *  params:
+ *      @conn,
+ *      @group_id
+ *      @user_id,
+ *      @content
+ *  return: int64_t, msg_id, success >0 ,else -1
+ */
+int64_t Database::GroupMessageInsert(Connection_T conn, const uint32_t &group_id, const uint32_t &user_id, const char* content) {
+    int64_t msg_id = -1;
+    char sql[4096] = {0};
+    time_t recv_time = time(NULL);
+    tm tm_recv_time;
+    gmtime_r(&recv_time, &tm_recv_time);
+    char timestamp[64] = {0};
+    strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", &tm_recv_time);
+    snprintf(sql, 4096, "INSERT INTO group_msgs(gid, sender_uid, time, content) VALUES(%d, %d, '%s', '%s')", group_id, user_id, timestamp, content);
+    TRY {
+        Connection_execute(conn, sql);
+        msg_id = Connection_lastRowId(conn);
+    }
+    CATCH(SQLException) {
+        msg_id = -1;
+        LOG_ERROR("Database GroupMessageInsert Failed: group_id=%d||sender_uid=%d||content=%s||SQLException=%s", group_id, user_id, content, Connection_getLastError(conn));
+    }
+    END_TRY;
+    return msg_id;
+}
+
+/**
+ *  function: GroupMessageUpdate
+ *  desc: update group_members last_ack_msg_id
+ *  params:
+ *      @conn
+ *      @group_id
+ *      @user_id
+ *      @msg_id
+ *  return: bool 
+ */
+bool Database::GroupMessageUpdate(Connection_T conn, const uint32_t &group_id, const uint32_t &user_id, const uint64_t &msg_id) {
+    bool res = true;
+    char sql[1024] = {0};
+    snprintf(sql, 1024, "UPDATE group_members SET last_ack_msgid = %d where gid = %d AND  uid = %d AND last_ack_msgid < %lld", msg_id, group_id, user_id, msg_id);
+    TRY {
+        Connection_execute(conn, sql);
+    }
+    CATCH(SQLException) {
+        res = false;
+        LOG_ERROR("Database GroupMessageUpdate Failed: gid=%d||uid=%d||msg_id=%lld||SQLException=%s", group_id, user_id, msg_id, Connection_getLastError(conn));
+    }
+    END_TRY;
+    return res;
+}
+
+/**
+ *  function GroupMessagePull
+ *  desc: the user pull offline groupmessages 
+ *  params: 
+ *      @conn
+ *      @group_id
+ *      @user_id
+ *      @messages, return value
+ *  return: int, message num, success >=0, error -1
+ */
+int Database::GroupMessagePull(Connection_T conn, const uint32_t &group_id, const uint32_t &user_id, std::vector<GroupMessage> &messages) {
+    int num = 0;
+    char sql[2048] = {0};
+    snprintf(sql, 2048, "SELECT content, time FROM group_msgs WHERE group_msgs.gid = %d AND msgid > (SELECT last_ack_msgid FROM group_members WHERE uid = %d)", group_id, user_id);
+    TRY {
+        ResultSet_T r = Connection_executeQuery(conn, sql);
+        while (ResultSet_next(r)) {
+            messages.emplace_back(ResultSet_getString(r, 1), ResultSet_getTimestamp(r, 2));
+        }
+    }
+    CATCH(SQLException) {
+        num = -1;
+        LOG_ERROR("Database GroupMessagePull Failed: gid=%d||uid=%d||SQLEXception=%s", group_id, user_id, Connection_getLastError(conn));
+    }
+    END_TRY;
+    return messages.size();
 }

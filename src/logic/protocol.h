@@ -154,5 +154,28 @@ struct MessageItem {
     std::string content;
 };
 
+struct UserInfo {
+    UserInfo(){}
+    UserInfo(uint32_t user_id_, std::string user_name_): user_id(user_id_), user_name(user_name_) {}
+    UserInfo(uint32_t user_id_, const char * user_name_): user_id(user_id_), user_name(user_name_) {}
+    uint32_t user_id;
+    std::string user_name;
+};
+
+struct GroupInfo{
+    GroupInfo() {}
+    GroupInfo(uint32_t group_id_, std::string group_name_): group_id(group_id_), group_name(group_name_) {} 
+    GroupInfo(uint32_t group_id_, const char * group_name_): group_id(group_id_), group_name(group_name_) {}
+    uint32_t group_id;
+    std::string group_name;
+};
+
+struct GroupMessage {
+    GroupMessage(){}
+    GroupMessage(std::string content_, time_t timestamp_): content(content_), timestamp(timestamp_) {}
+    GroupMessage(const char * content_, time_t timestamp_): content(content_), timestamp(timestamp_) {}
+    std::string content;
+    time_t timestamp;
+};
 
 #endif /* define Protocol*/
