@@ -168,6 +168,14 @@ void Controller::Execute() {
                 case RECEIPTE:
                     message_manager_.ProcessReceipt(control_head, conn);
                     break;
+                case GROUP_CREATE_REQUEST:
+                    break;
+                case GROUP_ADD_MEMBER_REQUEST:
+                    break;
+                case GROUP_DELETE_MEMBER_REQUEST:
+                    break;
+                case GROUP_QUIT_REQUEST:
+                    break;
                 default:
                     break;
             }

@@ -585,6 +585,35 @@ bool Database::GroupDeleteMember(Connection_T conn, const uint32_t &group_id, co
 }
 
 /**
+ *  function: GroupDeleteMembers
+ *  desc: delete membres from group
+ *  params: 
+ *      @conn
+ *      @group_id
+ *      @members
+ *  return: 
+ */ 
+bool Database::GroupDeleteMembers(Connection_T conn, const uint32_t &group_id, const std::vector<uint32_t> &members) {
+    bool res = true;
+    std::string sql = "DELETE FROM group_members WHERE gid = ";
+    sql += std::to_string(group_id) + " AND uid IN(";
+    for (uint32_t i = 0; i < members; ++i) {
+        sql += std::to_string(members[i]) + ",";
+    }
+    sql.pop_back();
+    sql.push_back(')');
+    TRY {
+        Connection_execute(conn, sql);
+    }
+    CATCH(SQLException) {
+        LOG_ERROR("Database GroupDeleteMembers Failed: gid=%d||SQLException=%s", gid, Connection_getLastError(conn));
+        return false;
+    }
+    END_TRY;
+    return res;
+}
+
+/**
     function: GroupListByUserId
     desc: list all gourps of the user
     params:
@@ -639,6 +668,31 @@ bool Database::GroupListUser(Connection_T conn, const uint32_t &group_id, std::v
 }
 
 /**
+ *  function: GroupListUserId
+ *  desc: list all user ids of the group
+ *  params:
+ *      @conn,
+ *      @group_id
+ *  return: std::vector<uint32_t> 
+ */ 
+std::vector<uint32_t> Database::GroupListUserId(Connection_T conn, const uint32_t &group_id) {
+    std::vector<uint32_t> users;
+    char sql[256] = {0};
+    snprintf(sql, 256, "SELECT uid FROM group_members WHERE gid = %d", group_id);
+    TRY {
+        ResultSet_T r = Connection_executeQuery(conn, sql);
+        while(ResultSet_next(r)) {
+            users.push_back((uint32_t) ResultSet_getInt(r, 1));
+        }
+    }
+    CATCH(SQLException) {
+        LOG_ERROR("Database GroupListUserId Failed: gid=%d||SQLException=%s", group_id, Connection_getLastError(conn));
+    }
+    END_TRY;
+    return users;
+}
+
+/**
  *  function: GroupMessageInsert
  *  desc: Insert message into group_msgs
  *  params:
@@ -648,10 +702,9 @@ bool Database::GroupListUser(Connection_T conn, const uint32_t &group_id, std::v
  *      @content
  *  return: int64_t, msg_id, success >0 ,else -1
  */
-int64_t Database::GroupMessageInsert(Connection_T conn, const uint32_t &group_id, const uint32_t &user_id, const char* content) {
+int64_t Database::GroupMessageInsert(Connection_T conn, const uint32_t &group_id, const uint32_t &user_id, const char* content, const time_t &recv_time) {
     int64_t msg_id = -1;
     char sql[4096] = {0};
-    time_t recv_time = time(NULL);
     tm tm_recv_time;
     gmtime_r(&recv_time, &tm_recv_time);
     char timestamp[64] = {0};
@@ -721,3 +774,31 @@ int Database::GroupMessagePull(Connection_T conn, const uint32_t &group_id, cons
     END_TRY;
     return messages.size();
 }
+
+/**
+ *  function IsUserInGroup
+ *  desc:  
+ *  params:
+ *      @conn,
+ *      @group_id,
+ *      @user_id
+ *  return, int
+ */
+int  Database::IsUserInGroup(Connection_T conn, const uint32_t &group_id, const uint32_t &user_id) {
+    char sql[256] = {0};
+    snprintf(sql, 256, "SELECT * FROM group_members WHERE gid = %d AND uid = %d", group_id, user_id);
+    TRY {
+        ResultSet_T r = Connection_executeQuery(conn, sql);
+        if (ResultSet_next(r)) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+    CATCH(SQLException) {
+        LOG_ERROR("Database IsUserInGroup Failed: gid=%d||uid=%d||SQLException=%s", group_id, user_id, Connection_getLastError(conn));
+        return -1;
+    }
+    END_TRY;
+ }

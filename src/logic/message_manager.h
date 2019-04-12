@@ -12,6 +12,9 @@ public:
     void ProcessBackwardNoAckMessage(ControlHead *control_head, Connection_T conn);
     void ProcessCompleteMessage(ControlHead *control_head, Connection_T conn);
     void ProcessReceipt(ControlHead *control_head, Connection_T conn);
+    void ProcessGroupMessage(ControlHead * control_head, Connection_T conn);
+    void ProcessGroupMessageReceipt(ControlHead * control_head, Connection_T conn);
+    void ProcessGroupMessagePull(ControlHead* control_head, Connection_T conn);
 };
 
 #endif /* define message_manager_h_ */
