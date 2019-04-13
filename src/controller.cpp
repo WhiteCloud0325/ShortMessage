@@ -173,10 +173,10 @@ void Controller::ProcessSchedule() {
             boost::unique_lock<boost::shared_mutex> lock(client_mutex_);
             if (client_socket_ != NULL) {
                 if (priority_queue_.Pop(msg)) {
-                    for (int i = 0; i < msg.size(); ++i) {
+                    /*for (int i = 0; i < msg.size(); ++i) {
                         printf("%02x ", (uint8_t)msg[i]);
                     }
-                    printf("\n");
+                    printf("\n");*/
                     client_socket_->SendPacket(const_cast<char*>(msg.c_str()), msg.size());
                     LOG_DEBUG("Schedule Send Message")
                 }
