@@ -41,6 +41,6 @@ void SendHelper::SendMessage(const std::string &buf) {
         client_transport->close();
     }
     catch(...) {
-        LOG_ERROR("SendMessage Error: content=%s", buf.c_str());
+       // LOG_ERROR("SendMessage Error: content=%s", buf.c_str());
     }
 }

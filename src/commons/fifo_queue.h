@@ -6,7 +6,7 @@
 #include <boost/thread/mutex.hpp>
 
 #define MAX_PACK_SIZE 65535
-#define INIT_BUF_SIZE 10000000
+#define INIT_BUF_SIZE 1000000000
 #define END_FLAG 0x0000
 #define PACK_LEN_SIZE 2
 

@@ -69,7 +69,6 @@ int TcpSocket::SendPacket(char* data, int len){
 
 int TcpSocket::RecvPacket(char* out_recv_buffer, int* recved_len){
     int recv_bytes = Recv(recv_pos_, (uint64_t)(TCP_BUF_SIZE) + recv_buffer_ - recv_pos_);
-
     if (recv_bytes == 0){//peer side close the connection
         perror("peer disconnect\n");
         return -1;

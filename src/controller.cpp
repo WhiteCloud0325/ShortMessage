@@ -3,7 +3,7 @@
 #include "tools/send_helper.h"
 #include <string.h>
 #include <boost/bind.hpp>
-
+#include <arpa/inet.h>
 Controller::Controller():access_port_(0),
                          stop_(false) {
 
@@ -76,6 +76,7 @@ void Controller::Start() {
 
 void Controller::Stop() {
     stop_= true;
+    server_socket_.Close();
     group_.join_all();
 }
 
@@ -95,6 +96,7 @@ void Controller::DelObservedClient(int socket_fd) {
         return;
     }
     delete it->second;
+    it->second = NULL;
     if (! epoll_.DelEvent(socket_fd, EPOLLIN)){ //add socket fd to epoll events
         LOG_FATAL("Controller DelObservedClient Failed: epoll del event failed");
     }
@@ -116,6 +118,9 @@ void Controller::HandleEvent(int socket_fd) {
         const int kBufSize = 50000, kHeadLen = 4;
         int recved_len;
         char recv_buffer[kBufSize];
+        if ( observed_client_.find(socket_fd) == observed_client_.end() || observed_client_[socket_fd] == NULL) {
+            return;
+        }
         TcpSocket* client = dynamic_cast<TcpSocket*>(observed_client_[socket_fd]);
         int complete_packet_num = client->RecvPacket(recv_buffer, &recved_len);
         if (complete_packet_num < 0){ //receive failed or not receive 1 or more complete packet
@@ -151,11 +156,13 @@ void Controller::ProcessMessage() {
             std::string message(pos, len - 28);
             SendHelper::GetInstance()->SendMessage(message);
         }*/
-        /*for (int i = 0; i < len; ++i) {
+       /* for (int i = 0; i < len; ++i) {
             printf("%02x ", (uint8_t)*(buf+i));
         }
         printf("\n");*/
         std::string message(buf, len);
+        uint16_t frame_id = ntohs(*(uint16_t*)(buf + 8));
         SendHelper::GetInstance()->SendMessage(message);
+        LOG_INFO("frame_id=%d", frame_id);
     }
 }
