@@ -3,23 +3,23 @@
 #include "workmanager/send_helper.h"
 #include "logic/coder.h"
 
-void UserManager::Register(const ControlHead * control_head, Connection_T conn) {
+void UserManager::Register(ControlHead * control_head, Connection_T conn) {
     
 }
 
-void UserManager::FriendAdd(const ControlHead * control_head, Connection_T conn) {
+void UserManager::FriendAdd(ControlHead * control_head, Connection_T conn) {
     
 }
 
-void UserManager::FriendDelete(const ControlHead * control_head, Connection_T conn) {
+void UserManager::FriendDelete(ControlHead * control_head, Connection_T conn) {
 
 }
 
-void UserManager::FriendList(const ControlHead * control_head, Connection_T conn) {
+void UserManager::FriendList(ControlHead * control_head, Connection_T conn) {
     
 }
 
-void UserManager::GroupCreate(const ControlHead * control_head, Connection_T conn) {
+void UserManager::GroupCreate(ControlHead * control_head, Connection_T conn) {
     uint32_t user_id = control_head->from_id;
     uint16_t frame_id = control_head->frame_id;
     char *pos = control_head->content;
@@ -33,7 +33,7 @@ void UserManager::GroupCreate(const ControlHead * control_head, Connection_T con
         members.push_back(*(uint32_t*)pos);
         pos += 4;
     }
-    int group_id = database.GroupCreate(conn, user_id, group_name, members);
+    int group_id = database_->GroupCreate(conn, user_id, group_name, members);
     MessageItem message;
     message.to_id = user_id;
     message.from_id = 0;
@@ -62,7 +62,7 @@ void UserManager::GroupCreate(const ControlHead * control_head, Connection_T con
     }
 }
 
-void UserManager::GroupAddUser(const ControlHead * control_head, Connecton_T conn) {
+void UserManager::GroupAddUser(ControlHead * control_head, Connection_T conn) {
     uint32_t user_id = control_head->from_id;
     uint16_t frame_id = control_head->frame_id;
     char* pos = control_head->content;
@@ -71,7 +71,7 @@ void UserManager::GroupAddUser(const ControlHead * control_head, Connecton_T con
     int num = *(int*)pos;
     pos += 4;
     std::vector<uint32_t> members;
-    for (i = 0; i < num; ++i) {
+    for (int i = 0; i < num; ++i) {
         members.push_back(*(uint32_t*)pos);
         pos += 4;
     }
@@ -101,12 +101,12 @@ void UserManager::GroupAddUser(const ControlHead * control_head, Connecton_T con
             }
             message.to_id = all_members[i];
             std::string response = MessageEncode(message);
-            SendHelper::GetInstance()->SendMessage(all_member[i], response, sates, 10);
+            SendHelper::GetInstance()->SendMessage(all_members[i], response, sates, 10);
         }
     }
 }
 
-void Database::GroupQuitUser(const ControlHead * control_head, Connetion_T conn) {
+void UserManager::GroupQuitUser(ControlHead * control_head, Connection_T conn) {
     uint32_t user_id = control_head->from_id;
     uint16_t frame_id = control_head->frame_id;
     char *pos = control_head->content;
@@ -135,7 +135,7 @@ void Database::GroupQuitUser(const ControlHead * control_head, Connetion_T conn)
     }
 }
 
-void Database::GroupDeleteMember(const ControlHead * control_head, Connection_T conn) {
+void UserManager::GroupDeleteMember(ControlHead * control_head, Connection_T conn) {
     uint32_t frame_id = control_head->frame_id;
     char *pos = control_head->content;
     uint32_t group_id = *(uint32_t*)pos;
@@ -145,7 +145,7 @@ void Database::GroupDeleteMember(const ControlHead * control_head, Connection_T 
         return;
     }
     pos += 4;
-    std::vector<uint32_t> memebers;
+    std::vector<uint32_t> members;
     for (uint32_t i = 0; i < num; ++i) {
         members.push_back(*(pos + 4));
         pos += 4;
@@ -163,13 +163,13 @@ void Database::GroupDeleteMember(const ControlHead * control_head, Connection_T 
     message.retain = control_head->retain;
     message.content = std::string(control_head->content, 4 * (2 + num));
     for (auto user_id: all_members) {
-        std::vector<SateParam> sates = GetSateCover(conn, user_id);
+        std::vector<SateParam> sates = database_->GetSateCover(conn, user_id);
         if (sates.empty()) {
             continue;
         }
         message.to_id = user_id;
         std::string response = MessageEncode(message);
-        SendHelper::GetInstance()->SendMessage(response);
+        SendHelper::GetInstance()->SendMessage(user_id, response, sates, 5);
     }
 }
 

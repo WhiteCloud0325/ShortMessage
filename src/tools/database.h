@@ -41,7 +41,7 @@ public:
     int64_t GroupMessageInsert(Connection_T conn, const uint32_t &group_id, const uint32_t &user_id, const char* content, const time_t &recv_time);
     bool GroupMessageUpdate(Connection_T conn, const uint32_t &group_id, const uint32_t &user_id, const uint64_t &msg_id);
     int GroupMessagePull(Connection_T conn, const uint32_t &group_id, const uint32_t &user_id, std::vector<GroupMessage> &messages);
-    bool IsUserInGroup(Connedtion_T conn, const uint32_t &group_id, const uint32_t &user_id);
+    int  IsUserInGroup(Connection_T conn, const uint32_t &group_id, const uint32_t &user_id);
 private:
     std::string host_name_;
     std::string user_;

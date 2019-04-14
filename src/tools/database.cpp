@@ -597,16 +597,16 @@ bool Database::GroupDeleteMembers(Connection_T conn, const uint32_t &group_id, c
     bool res = true;
     std::string sql = "DELETE FROM group_members WHERE gid = ";
     sql += std::to_string(group_id) + " AND uid IN(";
-    for (uint32_t i = 0; i < members; ++i) {
+    for (uint32_t i = 0; i < members.size(); ++i) {
         sql += std::to_string(members[i]) + ",";
     }
     sql.pop_back();
     sql.push_back(')');
     TRY {
-        Connection_execute(conn, sql);
+        Connection_execute(conn, sql.c_str());
     }
     CATCH(SQLException) {
-        LOG_ERROR("Database GroupDeleteMembers Failed: gid=%d||SQLException=%s", gid, Connection_getLastError(conn));
+        LOG_ERROR("Database GroupDeleteMembers Failed: gid=%d||SQLException=%s", group_id, Connection_getLastError(conn));
         return false;
     }
     END_TRY;

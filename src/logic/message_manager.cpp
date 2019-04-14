@@ -94,12 +94,12 @@ void MessageManager::ProcessGroupMessage(ControlHead* control_head, Connection_T
     uint32_t group_id = control_head->to_id;
     uint16_t frame_id = control_head->frame_id;
     char* pos = control_head->content;
-    int res = database_->IsUserInGroup(conn, group_id, user_id);
+    int res = database_->IsUserInGroup(conn, group_id, from_id);
     if (res != 1) {
         return;
     }
     time_t recv_time = time(NULL);
-    int64_t msg_id = database_->GroupMessageInsert(conn, group_id, user_id, pos + 8, recv_time);
+    int64_t msg_id = database_->GroupMessageInsert(conn, group_id, from_id, pos + 8, recv_time);
     std::vector<uint32_t> members = database_->GroupListUserId(conn, group_id);
     MessageItem message;
     message.from_id = group_id;
