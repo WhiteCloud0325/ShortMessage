@@ -61,10 +61,14 @@ int TcpSocket::SendPacket(char* data, int len){
 
     uint32_t netorder_len = htonl(len);
 	
-	Send((char*)&netorder_len, 4);
-	Send(data, len);
+	int result = Send((char*)&netorder_len, 4);
+    if (result < 0) {
+        return result;
+    }
+	result = Send(data, len);
+
 	
-    return len;
+    return result;
 }
 
 int TcpSocket::RecvPacket(char* out_recv_buffer, int* recved_len){

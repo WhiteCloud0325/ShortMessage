@@ -19,7 +19,9 @@ file(GLOB_RECURSE MAIN_SOURCES "src/*.cpp")
 set(SERVICE_SOURCES ${COMMONS_SOURCES} ${MAIN_SOURCES})
 set(SERVICE_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
-
+set(LIBLOG4CPLUS_MODULE "../lib/liblog4cplus")
+set(LIBLOG4CPLUS_MODULE_INCLUDE "${LIBLOG4CPLUS_MODULE}/include")
+file(GLOB_RECURSE LIBLOG4CPLUS_MODULE_LIB "${LIBLOG4CPLUS_MODULE}/lib/liblog4cplus.a")   
 
 set(LIBBOOST_MODULE "../lib/libboost")
 set(LIBBOOST_MODULE_INCLUDE ${LIBBOOST_MODULE}/include)
@@ -29,12 +31,14 @@ file(GLOB_RECURSE LIBBOOST_MODULE_LIB "${LIBBOOST_MODULE}/lib/*.a")
 include_directories(
     src/
     ${SERVICE_INCLUDE}
+    ${LIBLOG4CPLUS_MODULE_INCLUDE}
     ${LIBBOOST_MODULE_INCLUDE}
     )
 
 add_executable(client-test ${SERVICE_SOURCES})
 
 target_link_libraries(client-test
+    ${LIBLOG4CPLUS_MODULE_LIB}
     ${LIBBOOST_MODULE_LIB}
     pthread
     rt

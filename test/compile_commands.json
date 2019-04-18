@@ -1,0 +1,42 @@
+[
+{
+  "directory": "/home/dj/workspace/SchedulerService/test",
+  "command": "/usr/bin/c++   -DLINUX -DPTHREAD -pipe -g -std=c++0x -W -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-reorder -fPIC -O0 -I/home/dj/workspace/SchedulerService/test/src -I/home/dj/workspace/SchedulerService/test/../lib/liblog4cplus/include -I/home/dj/workspace/SchedulerService/test/../lib/libboost/include    -o CMakeFiles/client-test.dir/src/commons/comm_socket.cpp.o -c /home/dj/workspace/SchedulerService/test/src/commons/comm_socket.cpp",
+  "file": "/home/dj/workspace/SchedulerService/test/src/commons/comm_socket.cpp"
+},
+{
+  "directory": "/home/dj/workspace/SchedulerService/test",
+  "command": "/usr/bin/c++   -DLINUX -DPTHREAD -pipe -g -std=c++0x -W -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-reorder -fPIC -O0 -I/home/dj/workspace/SchedulerService/test/src -I/home/dj/workspace/SchedulerService/test/../lib/liblog4cplus/include -I/home/dj/workspace/SchedulerService/test/../lib/libboost/include    -o CMakeFiles/client-test.dir/src/commons/epoll_wrapper.cpp.o -c /home/dj/workspace/SchedulerService/test/src/commons/epoll_wrapper.cpp",
+  "file": "/home/dj/workspace/SchedulerService/test/src/commons/epoll_wrapper.cpp"
+},
+{
+  "directory": "/home/dj/workspace/SchedulerService/test",
+  "command": "/usr/bin/c++   -DLINUX -DPTHREAD -pipe -g -std=c++0x -W -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-reorder -fPIC -O0 -I/home/dj/workspace/SchedulerService/test/src -I/home/dj/workspace/SchedulerService/test/../lib/liblog4cplus/include -I/home/dj/workspace/SchedulerService/test/../lib/libboost/include    -o CMakeFiles/client-test.dir/src/commons/fifo_queue.cpp.o -c /home/dj/workspace/SchedulerService/test/src/commons/fifo_queue.cpp",
+  "file": "/home/dj/workspace/SchedulerService/test/src/commons/fifo_queue.cpp"
+},
+{
+  "directory": "/home/dj/workspace/SchedulerService/test",
+  "command": "/usr/bin/c++   -DLINUX -DPTHREAD -pipe -g -std=c++0x -W -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-reorder -fPIC -O0 -I/home/dj/workspace/SchedulerService/test/src -I/home/dj/workspace/SchedulerService/test/../lib/liblog4cplus/include -I/home/dj/workspace/SchedulerService/test/../lib/libboost/include    -o CMakeFiles/client-test.dir/src/commons/tcp_socket.cpp.o -c /home/dj/workspace/SchedulerService/test/src/commons/tcp_socket.cpp",
+  "file": "/home/dj/workspace/SchedulerService/test/src/commons/tcp_socket.cpp"
+},
+{
+  "directory": "/home/dj/workspace/SchedulerService/test",
+  "command": "/usr/bin/c++   -DLINUX -DPTHREAD -pipe -g -std=c++0x -W -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-reorder -fPIC -O0 -I/home/dj/workspace/SchedulerService/test/src -I/home/dj/workspace/SchedulerService/test/../lib/liblog4cplus/include -I/home/dj/workspace/SchedulerService/test/../lib/libboost/include    -o CMakeFiles/client-test.dir/src/commons/udp_socket.cpp.o -c /home/dj/workspace/SchedulerService/test/src/commons/udp_socket.cpp",
+  "file": "/home/dj/workspace/SchedulerService/test/src/commons/udp_socket.cpp"
+},
+{
+  "directory": "/home/dj/workspace/SchedulerService/test",
+  "command": "/usr/bin/c++   -DLINUX -DPTHREAD -pipe -g -std=c++0x -W -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-reorder -fPIC -O0 -I/home/dj/workspace/SchedulerService/test/src -I/home/dj/workspace/SchedulerService/test/../lib/liblog4cplus/include -I/home/dj/workspace/SchedulerService/test/../lib/libboost/include    -o CMakeFiles/client-test.dir/src/commons/utils.cpp.o -c /home/dj/workspace/SchedulerService/test/src/commons/utils.cpp",
+  "file": "/home/dj/workspace/SchedulerService/test/src/commons/utils.cpp"
+},
+{
+  "directory": "/home/dj/workspace/SchedulerService/test",
+  "command": "/usr/bin/c++   -DLINUX -DPTHREAD -pipe -g -std=c++0x -W -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-reorder -fPIC -O0 -I/home/dj/workspace/SchedulerService/test/src -I/home/dj/workspace/SchedulerService/test/../lib/liblog4cplus/include -I/home/dj/workspace/SchedulerService/test/../lib/libboost/include    -o CMakeFiles/client-test.dir/src/main.cpp.o -c /home/dj/workspace/SchedulerService/test/src/main.cpp",
+  "file": "/home/dj/workspace/SchedulerService/test/src/main.cpp"
+},
+{
+  "directory": "/home/dj/workspace/SchedulerService/test",
+  "command": "/usr/bin/c++   -DLINUX -DPTHREAD -pipe -g -std=c++0x -W -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-reorder -fPIC -O0 -I/home/dj/workspace/SchedulerService/test/src -I/home/dj/workspace/SchedulerService/test/../lib/liblog4cplus/include -I/home/dj/workspace/SchedulerService/test/../lib/libboost/include    -o CMakeFiles/client-test.dir/src/tools/logger.cpp.o -c /home/dj/workspace/SchedulerService/test/src/tools/logger.cpp",
+  "file": "/home/dj/workspace/SchedulerService/test/src/tools/logger.cpp"
+}
+]

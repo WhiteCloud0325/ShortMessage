@@ -32,7 +32,7 @@ public:
 private:
     //a TcpSocket object maintain a RecvBuffer, if it has received a complete packet, notify corresponding module to handle
     enum {
-        TCP_BUF_SIZE = 50000
+        TCP_BUF_SIZE = 5000000
     };
     char recv_buffer_[TCP_BUF_SIZE]; //rev_buffer to store tcp packet
     char* recv_pos_;     //pointer that indicates the beginning of the location where newly received data should store

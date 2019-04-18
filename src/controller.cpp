@@ -11,6 +11,10 @@
 #include <string.h>
 #include <boost/bind.hpp>
 #include "LogicInterfaceHandler.h"
+#include <boost/timer/timer.hpp>
+#include <boost/chrono.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 using namespace im;
 using namespace apache::thrift;
 using namespace apache::thrift::protocol;
@@ -122,6 +126,7 @@ void Controller::ProcessEpollEvent() {
 }
 
 void Controller::HandleEvent(int socket_fd) {
+    boost::unique_lock<boost::shared_mutex> lock(client_mutex_);
     if (socket_fd == server_socket_->socket_fd()) { //server listen fd event
         int conn_fd;
         struct sockaddr_in client_addr;
@@ -146,7 +151,6 @@ void Controller::HandleEvent(int socket_fd) {
 }
 
 void Controller::AddObservedClient(int socket_fd) {
-    boost::unique_lock<boost::shared_mutex> lock(client_mutex_);
     if (client_socket_!= NULL) {
         epoll_.DelEvent(client_socket_->socket_fd(), EPOLLIN);
     }
@@ -159,7 +163,6 @@ void Controller::AddObservedClient(int socket_fd) {
 }
 
 void Controller::DelObservedClient(int socket_fd) {
-    boost::unique_lock<boost::shared_mutex> lock(client_mutex_);
     client_socket_.reset();
     if (! epoll_.DelEvent(socket_fd, EPOLLIN)){ //delete socket fd to epoll events
         LOG_FATAL("Controller DelObservedClient Failed: epoll del event failed");
@@ -169,19 +172,22 @@ void Controller::DelObservedClient(int socket_fd) {
 void Controller::ProcessSchedule() {
     while (!stop_) {
         std::string msg;
-        {
-            boost::unique_lock<boost::shared_mutex> lock(client_mutex_);
-            if (client_socket_ != NULL) {
-                if (priority_queue_.Pop(msg)) {
-                    /*for (int i = 0; i < msg.size(); ++i) {
-                        printf("%02x ", (uint8_t)msg[i]);
-                    }
-                    printf("\n");*/
-                    client_socket_->SendPacket(const_cast<char*>(msg.c_str()), msg.size());
-                    LOG_DEBUG("Schedule Send Message")
-                }
+        if (priority_queue_.Pop(msg)) {
+           boost::unique_lock<boost::shared_mutex> lock(client_mutex_);
+           if (client_socket_ != NULL) {
+            /*for (int i = 0; i < msg.size(); ++i) {
+                printf("%02x ", (uint8_t)msg[i]);
             }
-        } 
+            printf("\n");*/
+           int result =  client_socket_->SendPacket(const_cast<char*>(msg.c_str()), msg.size());
+           if (result < 0 ) {
+               client_socket_.reset();
+           }
+        }
+        const boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
+        const boost::posix_time::time_duration td = now.time_of_day();
+        LOG_DEBUG("Send Message frame_id = %d||time=%lldms", *(uint16_t*) (msg.c_str() + 8),td.total_milliseconds());
+        }
         //TODO 定时
     }
 }

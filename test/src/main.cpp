@@ -53,7 +53,7 @@ int main() {
     pos += 4;*/
 
     tcp_socket.Create();
-    tcp_socket.Connect("162.105.85.118", 12001);
+    tcp_socket.Connect("162.105.85.118", 12002);
     char recv_buf[1024] = {0};
     int recv_len = 0;
     while(!stopped) {
@@ -81,10 +81,10 @@ int main() {
                 uint16_t fid = *(uint16_t*)(read_pos + 8);
                 fid = ntohs(fid);
                 uint8_t type = *(uint8_t*)(read_pos + 10);
-                cout << uid << endl;
-                cout << tid << endl;
-                cout << fid << endl;
-                cout << (int)type << endl;
+                //cout << uid << endl;
+                //cout << tid << endl;
+                //cout << fid << endl;
+                //cout << (int)type << endl;
                 read_pos += packet_len;
             }
         }
