@@ -17,7 +17,7 @@ public:
     ~Database();
     Connection_T GetConnection();
     bool UpdateSateCover(Connection_T conn, const uint32_t &user_id, const Satellite& sate_cover);
-    std::vector<SateParam>  GetSateCover(Connection_T conn, const int32_t &user_id);
+    void GetSateCover(Connection_T conn, const int32_t &user_id, std::vector<SateParam> &res);
     int GetOfflineMessageNum(Connection_T conn, uint32_t &user_id);
     bool InsertStoreMessage(Connection_T conn, ControlHead *control_head);
     bool InsertStoreMessage(Connection_T conn, const MessageItem &msg, const time_t &recv_time);

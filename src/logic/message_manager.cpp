@@ -17,7 +17,8 @@ void MessageManager::ProcessSimpleMessage(ControlHead *control_head, Connection_
     if (!database_->InsertStoreMessage(conn, control_head)) {
         return;
     }
-    std::vector<SateParam> sates = database_->GetSateCover(conn, to_id);
+    std::vector<SateParam> sates; 
+    database_->GetSateCover(conn, to_id, sates);
     if (!sates.empty()) {
         std::string str = MessageEncode(control_head);
         SendHelper::GetInstance()->SendMessage(to_id, str, sates, 5);
@@ -36,8 +37,10 @@ void MessageManager::ProcessCompleteMessage(ControlHead *control_head, Connectio
     if (!database_->InsertOfflineMessage(conn, control_head)) {
         return;
     }
-    std::vector<SateParam> sates_to_user = database_->GetSateCover(conn, to_id);
-    std::vector<SateParam> sates_from_user = database_->GetSateCover(conn, from_id);
+    std::vector<SateParam> sates_to_user;
+    database_->GetSateCover(conn, to_id, sates_to_user);
+    std::vector<SateParam> sates_from_user;
+    database_->GetSateCover(conn, from_id, sates_from_user);
     Response response;
     response.to_id = htonl(from_id);
     response.from_id = 0;
@@ -109,7 +112,8 @@ void MessageManager::ProcessGroupMessage(ControlHead* control_head, Connection_T
     *(int64_t*) pos = msg_id;
     message.content = std::string(control_head->content);
     for(auto member: members) {
-        std::vector<SateParam> sates = database_->GetSateCover(conn, member);
+        std::vector<SateParam> sates;
+        database_->GetSateCover(conn, member, sates);
         if (sates.empty()) {
             continue;
         }

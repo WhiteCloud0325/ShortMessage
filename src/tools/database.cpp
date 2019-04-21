@@ -117,8 +117,7 @@ bool Database::UpdateSateCover(Connection_T conn, const uint32_t &user_id, const
  */
 
 
-std::vector<SateParam> Database::GetSateCover(Connection_T conn, const int32_t &user_id) {
-    std::vector<SateParam> res; 
+void Database::GetSateCover(Connection_T conn, const int32_t &user_id, std::vector<SateParam> &res) {
     std::string sql = "SELECT SNR_1, SNR_2, SNR_3, SNR_4, SNR_5, SNR_6, SNR_7, SNR_8, SNR_9, SNR_10	 FROM sate_cover WHERE user_id = ";
     sql += std::to_string(user_id);
     TRY {
@@ -127,7 +126,7 @@ std::vector<SateParam> Database::GetSateCover(Connection_T conn, const int32_t &
              for (int i = 1; i <= MAX_BEAM_NUM; ++i) {
                  double temp = ResultSet_getDouble(r, i);
                  if (temp > 0) {
-                     res.push_back(SateParam((i + 1) / 2, i, (float)temp));
+                     res.emplace_back((i + 1) / 2, i, (float)temp);
                  }
              }
         }
@@ -136,7 +135,6 @@ std::vector<SateParam> Database::GetSateCover(Connection_T conn, const int32_t &
         LOG_ERROR("Database SelectSateCover Failed: user_id=%lld||SQLException=%s", user_id, Connection_getLastError(conn));
     }
     END_TRY;
-    return res;
 }
 
 /**
