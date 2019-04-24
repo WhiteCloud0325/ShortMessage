@@ -69,12 +69,13 @@ int TcpSocket::SendPacket(char* data, int len){
 
 int TcpSocket::RecvPacket(char* out_recv_buffer, int* recved_len){
     int recv_bytes = Recv(recv_pos_, (uint64_t)(TCP_BUF_SIZE) + recv_buffer_ - recv_pos_);
+   // printf("TcpSocket: fd=%d||recv_bytes=%d\n", socket_fd_, recv_bytes);
     if (recv_bytes == 0){//peer side close the connection
-        perror("peer disconnect\n");
+        perror("peer disconnect: ");
         return -1;
     }
     if (recv_bytes < 0){ //error happens
-        perror("tcp receive failed\n");
+        perror("tcp receive failed: ");
         return -1;
     }
     //received data

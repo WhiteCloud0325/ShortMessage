@@ -98,6 +98,7 @@ void Controller::DelObservedClient(int socket_fd) {
     }
     delete it->second;
     it->second = NULL;
+    observed_client_.erase(it);
     if (! epoll_.DelEvent(socket_fd, EPOLLIN)){ //add socket fd to epoll events
         LOG_FATAL("Controller DelObservedClient Failed: epoll del event failed");
     }
@@ -166,6 +167,6 @@ void Controller::ProcessMessage() {
         SendHelper::GetInstance()->SendMessage(message);
         const boost::posix_time::ptime  now = boost::posix_time::microsec_clock::local_time();
         const boost::posix_time::time_duration td = now.time_of_day();
-        LOG_INFO("frame_id=%d||time=%lldms", frame_id, td.total_milliseconds());
+       // LOG_DEBUG("frame_id=%d||time=%lldms", frame_id, td.total_milliseconds());
     }
 }
