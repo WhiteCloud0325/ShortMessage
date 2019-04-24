@@ -4,6 +4,7 @@
 #include <string.h>
 #include <boost/bind.hpp>
 #include <arpa/inet.h>
+#include <boost/date_time/posix_time/posix_time.hpp>
 Controller::Controller():access_port_(0),
                          stop_(false) {
 
@@ -163,6 +164,8 @@ void Controller::ProcessMessage() {
         std::string message(buf, len);
         uint16_t frame_id = ntohs(*(uint16_t*)(buf + 8));
         SendHelper::GetInstance()->SendMessage(message);
-        LOG_INFO("frame_id=%d", frame_id);
+        const boost::posix_time::ptime  now = boost::posix_time::microsec_clock::local_time();
+        const boost::posix_time::time_duration td = now.time_of_day();
+        LOG_INFO("frame_id=%d||time=%lldms", frame_id, td.total_milliseconds());
     }
 }
