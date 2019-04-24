@@ -44,10 +44,6 @@ void MessageManager::ProcessCompleteMessage(ControlHead *control_head, Connectio
     if (!database_->InsertStoreMessage(conn, control_head)) {
         return;
     }
-    if (!database_->InsertOfflineMessage(conn, control_head)) {
-        return;
-    }
-    
     std::vector<SateParam> sates_to_user;
     database_->GetSateCover(conn, to_id, sates_to_user);
     std::vector<SateParam> sates_from_user;
@@ -66,6 +62,7 @@ void MessageManager::ProcessCompleteMessage(ControlHead *control_head, Connectio
      //   LOG_DEBUG("Message ProcessCompleteMessage SendReceipt: from_id=%ld", from_id);
     }
     if (!sates_to_user.empty()) {
+        database_->InsertOfflineMessage(conn, control_head);
         std::string str = MessageEncode(control_head);
         SendHelper::GetInstance()->SendMessage(to_id, str, sates_to_user, 5);
     //    LOG_DEBUG("Message ProcessCompleteMessage SendMessage: from_id=%ld||to_id=%ld||frame_id=%ld", from_id, to_id, ntohs(control_head->frame_id));
