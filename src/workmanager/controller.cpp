@@ -179,10 +179,6 @@ void Controller::Execute() {
                 default:
                     break;
             }
-            timeval end;
-            gettimeofday(&end, NULL);
-            uint32_t cost_time = (end.tv_sec - start.tv_sec) * 1000000 + end.tv_usec - start.tv_usec;
-            LOG_DEBUG("AccessToLogic: time=%ld", cost_time);
         }
         else {
             Connection_close(conn);

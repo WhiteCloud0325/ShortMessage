@@ -42,7 +42,8 @@ void UserManager::GroupCreate(ControlHead * control_head, Connection_T conn) {
     message.retain = control_head->retain;
     message.content = std::string((char*)&group_id, 4);
     if (group_id == -1) {
-        std::vector<SateParam> sates = database_->GetSateCover(conn, user_id);
+        std::vector<SateParam> sates;
+        database_->GetSateCover(conn, user_id, sates);
         if (!sates.empty()) {
             std::string response = MessageEncode(message);
             SendHelper::GetInstance()->SendMessage(user_id, response, sates, 10);
@@ -51,7 +52,8 @@ void UserManager::GroupCreate(ControlHead * control_head, Connection_T conn) {
     else {
         members.push_back(user_id);
         for (int i = 0; i < members.size(); ++i) {
-            std::vector<SateParam> sates = database_->GetSateCover(conn, members[i]);
+            std::vector<SateParam> sates;
+            database_->GetSateCover(conn, members[i], sates);
             if (sates.empty()) {
                 continue;
             }
@@ -84,7 +86,8 @@ void UserManager::GroupAddUser(ControlHead * control_head, Connection_T conn) {
     message.retain = control_head->retain;
     message.content = std::string(control_head->content,  4 * (num + 2));
     if (!res) {
-        std::vector<SateParam> sates = database_->GetSateCover(conn, user_id);
+        std::vector<SateParam> sates;
+        database_->GetSateCover(conn, user_id, sates);
         if (!sates.empty()) {
             int temp = -1;
             message.content = std::string((char*)&temp, 4);
@@ -95,7 +98,8 @@ void UserManager::GroupAddUser(ControlHead * control_head, Connection_T conn) {
     else {
         std::vector<uint32_t> all_members = database_->GroupListUserId(conn, group_id);
         for (int i = 0; i < all_members.size(); ++i) {
-            std::vector<SateParam> sates = database_->GetSateCover(conn, all_members[i]);
+            std::vector<SateParam> sates;
+            database_->GetSateCover(conn, all_members[i], sates);
             if (sates.empty()) {
                 continue;
             }
@@ -124,7 +128,8 @@ void UserManager::GroupQuitUser(ControlHead * control_head, Connection_T conn) {
         std::vector<uint32_t> members = database_->GroupListUserId(conn, group_id);
         members.push_back(user_id);
         for (int i = 0; i < members.size(); ++i) {
-            std::vector<SateParam> sates = database_->GetSateCover(conn, members[i]);
+            std::vector<SateParam> sates;
+            database_->GetSateCover(conn, members[i], sates);
             if (sates.empty()) {
                 continue;
             }
@@ -163,7 +168,8 @@ void UserManager::GroupDeleteMember(ControlHead * control_head, Connection_T con
     message.retain = control_head->retain;
     message.content = std::string(control_head->content, 4 * (2 + num));
     for (auto user_id: all_members) {
-        std::vector<SateParam> sates = database_->GetSateCover(conn, user_id);
+        std::vector<SateParam> sates;
+        database_->GetSateCover(conn, user_id, sates);
         if (sates.empty()) {
             continue;
         }

@@ -76,7 +76,8 @@ void MobileManager::ProcessLogout(const ControlHead *control_head, Connection_T 
     LOG_DEBUG("ProcessLogout: user_id=%u", user_id);
     Satellite sate;
     sate.sat_cover_num = 0;
-    std::vector<SateParam> sates = database_->GetSateCover(conn, user_id);
+    std::vector<SateParam> sates;
+    database_->GetSateCover(conn, user_id, sates);
     database_->UpdateSateCover(conn, user_id, sate);
     std::string str = ResponseEncode(response);
     SendHelper::GetInstance()->SendMessage(user_id, str, sates, 10);

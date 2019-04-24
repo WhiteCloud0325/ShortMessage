@@ -4,6 +4,10 @@
 #include "workmanager/send_helper.h"
 #include <time.h>
 #include <arpa/inet.h>
+#include <boost/timer/timer.hpp>
+#include <boost/chrono.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 using namespace im;
 
 /**
@@ -22,8 +26,11 @@ void MessageManager::ProcessSimpleMessage(ControlHead *control_head, Connection_
     if (!sates.empty()) {
         std::string str = MessageEncode(control_head);
         SendHelper::GetInstance()->SendMessage(to_id, str, sates, 5);
-        LOG_DEBUG("Message ProcessCompleteMessage SendMessage: from_id=%ld||to_id=%ld||frame_id=%ld", from_id, to_id, ntohs(control_head->frame_id));
     }
+    const boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
+    const boost::posix_time::time_duration td = now.time_of_day();
+    LOG_DEBUG("message from_id=%ld||to_id=%ld||frame_id=%d||time=%lldms", from_id,to_id, ntohs(control_head->frame_id), td.total_milliseconds());
+
     return;
 }
 

@@ -53,7 +53,8 @@ void QosSendDaemon::Start() {
         database_->GetAllOfflineMessage(conn, max_retry_count_, msg_interval_, messages);
         for(auto &message: messages) {
             uint32_t user_id = message.to_id;
-            std::vector<SateParam> sates = database_->GetSateCover(conn, user_id);
+            std::vector<SateParam> sates;
+            database_->GetSateCover(conn, user_id, sates);
             if (sates.empty()) {
                 continue;
             }
