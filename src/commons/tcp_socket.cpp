@@ -5,7 +5,6 @@ TcpSocket::TcpSocket(){
 }
 
 TcpSocket::~TcpSocket(){
-    Close();
 }
 
 

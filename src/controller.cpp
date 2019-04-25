@@ -6,7 +6,7 @@
 #include <arpa/inet.h>
 #include <boost/date_time/posix_time/posix_time.hpp>
 Controller::Controller():access_port_(0),
-                         stop_(false) {
+                         stop_(false){
 
 }
 
@@ -14,8 +14,9 @@ Controller::~Controller(){
     //delete all pointers in map
     while(! observed_client_.empty()){
         std::unordered_map<int, CommonSocket*>::iterator it = observed_client_.begin();
-        delete it->second;
-        observed_client_.erase(it);
+       // delete it->second;
+       // observed_client_.erase(it);
+       DelObservedClient(it->first);
     }
 }
 
@@ -41,7 +42,6 @@ bool Controller::Init(const libconfig::Config &config) {
         LOG_INFO("Controller Init Exception Failed");
         return false;
     }
-
     if (!server_socket_.Create()) {
         return false;
     }
@@ -51,11 +51,10 @@ bool Controller::Init(const libconfig::Config &config) {
     if (!server_socket_.Bind("0.0.0.0", access_port_)) {
         return false;
     }
-    if (!server_socket_.Listen(20)) {
+    if (!server_socket_.Listen(40)) {
         return false;
     }
     epoll_.AddEvent(server_socket_.socket_fd(), EPOLLIN);
-    observed_client_.insert(std::pair<int, CommonSocket*>(server_socket_.socket_fd(), &server_socket_));
     LOG_INFO("Controller Init Success");
     return true;
 
@@ -77,7 +76,7 @@ void Controller::Start() {
 
 void Controller::Stop() {
     stop_= true;
-    server_socket_.Close();
+    group_.interrupt_all();
     group_.join_all();
 }
 
@@ -96,12 +95,14 @@ void Controller::DelObservedClient(int socket_fd) {
     if (it == observed_client_.end()) {
         return;
     }
-    delete it->second;
-    it->second = NULL;
-    observed_client_.erase(it);
     if (! epoll_.DelEvent(socket_fd, EPOLLIN)){ //add socket fd to epoll events
         LOG_FATAL("Controller DelObservedClient Failed: epoll del event failed");
     }
+    if (it->second) {
+        delete it->second;
+        it->second = NULL;
+    }
+    observed_client_.erase(it);
 }
 
 void Controller::HandleEvent(int socket_fd) {
