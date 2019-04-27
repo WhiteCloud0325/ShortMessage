@@ -31,11 +31,11 @@ void UserManager::GroupCreate(ControlHead * control_head, Connection_T conn) {
 
     std::string group_name = std::string(pos, 40);
     pos += 40;
-    uint32_t num = *(uint32_t*)pos;
+    uint32_t num = ntohl(*(uint32_t*)pos);
     pos +=4;
     std::vector<uint32_t> members;
     for (uint32_t i = 0; i < num; ++i) {
-        members.push_back(*(uint32_t*)pos);
+        members.push_back(ntohl(*(uint32_t*)pos));
         pos += 4;
     }
     int group_id = database_->GroupCreate(conn, user_id, group_name);
@@ -67,7 +67,7 @@ void UserManager::GroupCreate(ControlHead * control_head, Connection_T conn) {
             return;
         } 
         std::string response = MessageEncode(message);
-        SendHelper::GetInstance()->SendGroupMessage(group_id, buf, beams, 10);
+        SendHelper::GetInstance()->SendGroupMessage(group_id, response, beams, 10);
     }
 }
 
@@ -77,12 +77,15 @@ void UserManager::GroupAddUser(ControlHead * control_head, Connection_T conn) {
     char* pos = control_head->content;
     uint32_t group_id =  ntohl(*(uint32_t*)pos);
     pos += 4;
-    int num = *(int*)pos;
+    uint32_t num = ntohl(*(uint32_t*)pos);
     pos += 4;
     std::vector<uint32_t> members;
-    for (int i = 0; i < num; ++i) {
-        members.push_back(*(uint32_t*)pos);
+    for (uint32_t i = 0; i < num; ++i) {
+        members.push_back(ntohl(*(uint32_t*)pos));
         pos += 4;
+    }
+    if (members.empty()) {
+        return;
     }
     bool res = database_->GroupAddMembers(conn, group_id, members);
     MessageItem message;
@@ -149,14 +152,14 @@ void UserManager::GroupDeleteMember(ControlHead * control_head, Connection_T con
     char *pos = control_head->content;
     uint32_t group_id = ntohl(*(uint32_t*)pos);
     pos += 4;
-    uint32_t num = *(uint32_t*)pos;
+    uint32_t num = ntohl(*(uint32_t*)pos);
     if (num == 0) {
         return;
     }
     pos += 4;
     std::vector<uint32_t> members;
     for (uint32_t i = 0; i < num; ++i) {
-        members.push_back(*(pos + 4));
+        members.push_back(ntohl(*(uint32_t*)pos));
         pos += 4;
     }
     
@@ -170,7 +173,7 @@ void UserManager::GroupDeleteMember(ControlHead * control_head, Connection_T con
         return;
     }
     MessageItem message;
-    message.to_id = control_head->group_id; // I really don not know what should be 
+    message.to_id = group_id; // I really don not know what should be 
     message.from_id = 0;
     message.frame_id = frame_id; //so is this 
     message.type = GROUP_DELETE_MEMBER_RESPONSE;
