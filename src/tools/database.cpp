@@ -539,7 +539,7 @@ int Database::GroupCreate(Connection_T conn, const uint32_t &user_id, const std:
         group_id = Connection_lastRowId(conn);
         char group_cover[128] = {0};
         snprintf(group_cover, 128, "INSERT INTO group_cover SET group_id = %d", group_id);
-        Connection_execute(conn, group_cover.c_str());
+        Connection_execute(conn, group_cover);
         Connection_commit(conn);
     }
     CATCH(SQLException) {
