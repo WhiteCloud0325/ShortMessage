@@ -91,15 +91,41 @@ bool Database::UpdateSateCover(Connection_T conn, const uint32_t &user_id, const
         temp_snr[sate_cover.sates_param[i].beam_id - 1] = sate_cover.sates_param[i].snr;
     } 
     std::string sql = "UPDATE sate_cover SET ";
+    std::string get_sql = "SELECT ";
     for (int i = 1; i <= MAX_BEAM_NUM; ++i) {
         sql += "SNR_" + std::to_string(i) + " = " + std::to_string(temp_snr[i - 1]) + ",";
+        get_sql += "SNR_" + std::to_string(i) + ",";
     }
     sql.pop_back();
     sql += " WHERE user_id = " + std::to_string(user_id);
+    get_sql.pop_back();
+    get_sql += " FROM sate_cover WHERE user_id = " + std::to_string(user_id);
     TRY {
+        Connection_beginTransaction(conn);
+        ResultSet_T r = Connection_executeQuery(conn, get_sql.c_str());
+        if (ResultSet_next(r)) {
+            std::string update_sql = "UPDATE group_cover SET ";
+            for(int i = 1; i <= MAX_BEAM_NUM; ++i) {
+                double  snr = ResultSet_getDouble(r, i);
+                std::string tmp = "SNR_" + std::to_string(i);
+                if(temp_snr[i - 1] > 0 && snr < 0) {
+                    update_sql += tmp + "=" + tmp + "+1,";
+                }
+                else if (temp_snr[i - 1] < 0 && snr > 0) {
+                    update_sql += tmp + "=if(" + tmp + ">0," + tmp + "-1,0),";
+                }
+            }
+            update_sql.pop_back();
+            if (update_sql.size() > 23) {
+                update_sql += " WHERE group_id IN (SELECT gid FROM group_members WHERE uid = " + std::to_string(user_id) + ")";
+                Connection_execute(conn, update_sql.c_str());
+            }
+        }
         Connection_execute(conn, sql.c_str());
+        Connection_commit(conn);
     }
     CATCH(SQLException) {
+        Connection_rollback(conn);
         LOG_ERROR("Database UpdateSateCover Failed: userid=%lld||SQLException=%s", user_id, Connection_getLastError(conn));
         return false;
     }
@@ -428,8 +454,8 @@ bool Database::FriendAdd(Connection_T conn, const uint32_t &user_id, const uint3
     }
     CATCH(SQLException) {
         res = false;
-        LOG_ERROR("Database FriendAdd Falied: SQLException=%s", Connection_getLastError(conn));
         Connection_rollback(conn);
+        LOG_ERROR("Database FriendAdd Falied: SQLException=%s", Connection_getLastError(conn));
     }
     END_TRY;
     return res;
@@ -458,6 +484,7 @@ bool Database::FriendDelete(Connection_T conn, const uint32_t &user_id, const ui
     }
     CATCH(SQLException) {
         res = false;
+        Connection_rollback(conn);
         LOG_ERROR("Database FriendDelete Failed: SQLException=%s", Connection_getLastError(conn));
     }
     END_TRY;
@@ -502,27 +529,23 @@ bool Database::FriendList(Connection_T conn, const uint32_t &user_id, std::vecto
     return:
         gourp_id, int
 */
-int Database::GroupCreate(Connection_T conn, const uint32_t &user_id, const std::string &group_name, std::vector<uint32_t> &members) {
+int Database::GroupCreate(Connection_T conn, const uint32_t &user_id, const std::string &group_name) {
     char create_sql[128] = {0};
     int group_id = -1;
     sprintf(create_sql, "INSERT INTO group_info SET group_name = \"%s\"",group_name.c_str());
-    members.push_back(user_id);
-    std::string add_members = "INSERT INTO group_members(gid, uid) VALUES";
     TRY {
         Connection_beginTransaction(conn);
         Connection_execute(conn, create_sql);
         group_id = Connection_lastRowId(conn);
-        for (int i = 0; i < members.size(); ++i) {
-            add_members += "(" + std::to_string(group_id) + "," + std::to_string(members[i]) + "),"; 
-        }
-        add_members.pop_back();
-        Connection_execute(conn, add_members.c_str());
+        char group_cover[128] = {0};
+        snprintf(group_cover, 128, "INSERT INTO group_cover SET group_id = %d", group_id);
+        Connection_execute(conn, group_cover);
         Connection_commit(conn);
     }
     CATCH(SQLException) {
         group_id = -1;
-        LOG_ERROR("Database CreateGroup Failed: SQLException=%s", Connection_getLastError(conn));
         Connection_rollback(conn);
+        LOG_ERROR("Database CreateGroup Failed: SQLException=%s", Connection_getLastError(conn));
     }
     END_TRY;
     return group_id;
@@ -536,7 +559,7 @@ int Database::GroupCreate(Connection_T conn, const uint32_t &user_id, const std:
         @gourp_id,
         @members
 */
-bool Database::GroupAddMember(Connection_T conn, const uint32_t &group_id, const  std::vector<uint32_t> &members) {
+bool Database::GroupAddMembers(Connection_T conn, const uint32_t &group_id, const  std::vector<uint32_t> &members) {
     bool res = true;
     if (members.empty()) {
         LOG_ERROR("Database GroupAddMemeber Failed: members empty");
@@ -547,10 +570,37 @@ bool Database::GroupAddMember(Connection_T conn, const uint32_t &group_id, const
         add_members += "(" + std::to_string(group_id) + "," + std::to_string(members[i]) + "),";
     }
     add_members.pop_back();
+    std::string sate_cover = "SELECT ";
+    for (int i = 1; i <= MAX_BEAM_NUM; ++i) {
+        sate_cover += "SUM(SNR_";
+        sate_cover += std::to_string(i);
+        sate_cover += ">0),"; 
+    }
+    sate_cover.pop_back();
+    sate_cover += " FROM sate_cover WHERE user_id IN (";
+    for (auto id: members) {
+        sate_cover += std::to_string(id);
+        sate_cover += ",";
+    }
+    sate_cover[sate_cover.size() - 1] = ')';
     TRY {
+        Connection_beginTransaction(conn);
         Connection_execute(conn, add_members.c_str());
+        ResultSet_T r = Connection_executeQuery(conn, sate_cover.c_str());
+        if (ResultSet_next(r)) {
+            std::string group_cover = "UPDATE group_cover SET ";
+            for (int i = 1; i <= MAX_BEAM_NUM; ++i) {
+                int num = ResultSet_getInt(r, i);
+                group_cover += "SNR_" + std::to_string(i) + "=SNR_" + std::to_string(i) + "+" + std::to_string(num) + ",";
+            }
+            group_cover[group_cover.size() - 1] = ' ';
+            group_cover += "WHERE group_id=" + std::to_string(group_id);
+            Connection_execute(conn, group_cover.c_str());
+        }
+        Connection_commit(conn);
     }
     CATCH(SQLException) {
+        Connection_rollback(conn);
         res = false;
         LOG_ERROR("Database GroupAddMember Failed: SQLException=%s", Connection_getLastError(conn));
     }
@@ -567,7 +617,7 @@ bool Database::GroupAddMember(Connection_T conn, const uint32_t &group_id, const
         @member
     return: bool
 */
-bool Database::GroupDeleteMember(Connection_T conn, const uint32_t &group_id, const uint32_t &member) {
+/*bool Database::GroupDeleteMember(Connection_T conn, const uint32_t &group_id, const uint32_t &member) {
     bool res = true;
     char sql[256] = {0};
     sprintf(sql, "DELETE FROM group_members WHERE gid = %d AND uid = %d", (int)group_id, (int)member);
@@ -580,7 +630,7 @@ bool Database::GroupDeleteMember(Connection_T conn, const uint32_t &group_id, co
     }
     END_TRY;
     return res;
-}
+}*/
 
 /**
  *  function: GroupDeleteMembers
@@ -600,16 +650,81 @@ bool Database::GroupDeleteMembers(Connection_T conn, const uint32_t &group_id, c
     }
     sql.pop_back();
     sql.push_back(')');
+    std::string sate_cover = "SELECT ";
+    for (int i = 1; i <= MAX_BEAM_NUM; ++i) {
+        sate_cover += "SUM(SNR_";
+        sate_cover += std::to_string(i);
+        sate_cover += ">0),"; 
+    }
+    sate_cover.pop_back();
+    sate_cover += " FROM sate_cover WHERE user_id IN (";
+    for (auto id: members) {
+        sate_cover += std::to_string(id);
+        sate_cover += ",";
+    }
+    sate_cover[sate_cover.size() - 1] = ')';
     TRY {
+        Connection_beginTransaction(conn);
+        // delete members from group_members
         Connection_execute(conn, sql.c_str());
+        // get sate_cover of members;
+        ResultSet_T r = Connection_executeQuery(conn, sate_cover.c_str());
+        if (ResultSet_next(r)) {
+            std::string group_cover = "UPDATE group_cover SET ";
+            for (int i = 1; i <= MAX_BEAM_NUM; ++i) {
+                std::string id = std::to_string(i);
+                std::string num = std::to_string(ResultSet_getInt(r, i));
+                group_cover += "SNR_" + id + "=if(SNR_" + id + ">" + num + ", SNR_" + id + "-" + num + ", 0),";
+            }
+            group_cover[group_cover.size() - 1] = ' ';
+            group_cover += "WHERE group_id=" + std::to_string(group_id);
+            Connection_execute(conn, group_cover.c_str());
+        }
+        Connection_commit(conn);
     }
     CATCH(SQLException) {
+        Connection_rollback(conn);
         LOG_ERROR("Database GroupDeleteMembers Failed: gid=%d||SQLException=%s", group_id, Connection_getLastError(conn));
         return false;
     }
     END_TRY;
     return res;
 }
+
+/**
+ *  function: GroupGetSateCover
+ *  desc: get the beam id of Group Cover
+ *  params:
+ *      @conn,
+ *      @group_id,
+ *      @res, return value, std::vector<int>
+ *  return: void
+ */
+void Database::GroupGetSateCover(Connection_T conn, const uint32_t &group_id, std::vector<int> &res) {
+    std::string sql = "SELECT ";
+    for (int i = 1; i <= MAX_BEAM_NUM; ++i) {
+        sql += "SNR_" + std::to_string(i) + ",";
+    }
+    sql[sql.size() - 1] = ' ';
+    sql += " FROM group_cover WHERE group_id = " + std::to_string(group_id);
+    TRY{
+        ResultSet_T r = Connection_executeQuery(conn, sql.c_str());
+        if (ResultSet_next(r)) {
+            for (int i = 1; i <= MAX_BEAM_NUM; ++i) {
+                int num = ResultSet_getInt(r, i);
+                if (num > 0) {
+                    res.emplace_back(i);
+                }
+            }
+        }
+    }
+    CATCH(SQLException) {
+        LOG_ERROR("Database GroupGetSateCover Failed: gid=%d", group_id);
+    }
+    END_TRY;
+    return;
+}
+
 
 /**
     function: GroupListByUserId
@@ -673,21 +788,19 @@ bool Database::GroupListUser(Connection_T conn, const uint32_t &group_id, std::v
  *      @group_id
  *  return: std::vector<uint32_t> 
  */ 
-std::vector<uint32_t> Database::GroupListUserId(Connection_T conn, const uint32_t &group_id) {
-    std::vector<uint32_t> users;
+void Database::GroupListUserId(Connection_T conn, const uint32_t &group_id, std::vector<uint32_t> &res) {
     char sql[256] = {0};
     snprintf(sql, 256, "SELECT uid FROM group_members WHERE gid = %d", group_id);
     TRY {
         ResultSet_T r = Connection_executeQuery(conn, sql);
         while(ResultSet_next(r)) {
-            users.push_back((uint32_t) ResultSet_getInt(r, 1));
+            res.push_back((uint32_t) ResultSet_getInt(r, 1));
         }
     }
     CATCH(SQLException) {
         LOG_ERROR("Database GroupListUserId Failed: gid=%d||SQLException=%s", group_id, Connection_getLastError(conn));
     }
     END_TRY;
-    return users;
 }
 
 /**

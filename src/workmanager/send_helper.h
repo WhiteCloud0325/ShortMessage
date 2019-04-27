@@ -30,6 +30,7 @@ public:
     }
     bool Init(libconfig::Setting &setting);
     bool SendMessage(const uint32_t user_id, const std::string &buf, std::vector<SateParam> &sates, const int &level);
+    bool SendGroupMessage(const uint32_t group_id, const std::string&buf, std::vector<int> &beams, int level);
 private:
     SendHelper(){}
     static SendHelper* instance_;

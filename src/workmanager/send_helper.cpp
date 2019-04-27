@@ -80,3 +80,38 @@ bool SendHelper::SendMessage(const uint32_t user_id, const std::string &buf, std
     }
     return true;
 }
+
+bool SendHelper::SendGroupMessage(const uint32_t group_id, const std::string &buf, std::vector<int> &beams, int level) {
+    if (beams.empty()) {
+        return false;
+    }
+    im::AccessMessage send;
+    send.__set_uid(group_id);
+    //send.__set_sate_id(cur_sate_id);
+    //send.__set_beam_id(cur_beam_id);
+    send.__set_level(level);
+    send.__set_content(buf);
+    try {
+        boost::shared_ptr<TSocket> client_socket;
+        boost::shared_ptr<TTransport> client_transport;
+        boost::shared_ptr<TProtocol> client_protocol;
+        boost::shared_ptr<im::LogicInterfaceClient> client;
+        for (auto id: beams) {
+            send.__set_sate_id((id + 1) / 2);
+            send.__set_beam_id(id);
+            client_socket.reset(new TSocket(schedule_address_[id].ip, schedule_address_[id].port));
+            client_transport.reset(new TBufferedTransport(client_socket));
+            client_protocol.reset(new TBinaryProtocol(client_transport));
+            client.reset(new im::LogicInterfaceClient(client_protocol));
+
+            client_transport->open();
+            client->LogicToAccess(send);
+            client_transport->close();
+        }
+    }
+    catch(...) {
+        LOG_ERROR("SendGroupMessage Error: gid=%d", group_id);
+        return false;
+    }
+    return true;
+}

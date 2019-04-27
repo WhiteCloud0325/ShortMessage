@@ -31,13 +31,14 @@ public:
     bool FriendAdd(Connection_T conn, const uint32_t &user_id, const uint32_t &friend_id);
     bool FriendDelete(Connection_T conn, const uint32_t &user_id, const uint32_t &friend_id);
     bool FriendList(Connection_T conn, const uint32_t &user_id, std::vector<UserInfo> &friends);
-    int GroupCreate(Connection_T conn, const uint32_t &user_id, const std::string &group_name, std::vector<uint32_t> &members);
-    bool GroupAddMember(Connection_T conn, const uint32_t &group_id, const  std::vector<uint32_t> &members);
-    bool GroupDeleteMember(Connection_T conn, const uint32_t &group_id, const uint32_t &member);
+    int GroupCreate(Connection_T conn, const uint32_t &user_id, const std::string &group_name);
+    bool GroupAddMembers(Connection_T conn, const uint32_t &group_id, const  std::vector<uint32_t> &members);
+    //bool GroupDeleteMember(Connection_T conn, const uint32_t &group_id, const uint32_t &member);
     bool GroupDeleteMembers(Connection_T conn, const uint32_t &group_id, const std::vector<uint32_t> &members);
+    void GroupGetSateCover(Connection_T conn, const uint32_t &group_id, std::vector<int> &res);
     bool GroupListByUserId(Connection_T conn, const uint32_t &user_id, std::vector<GroupInfo> &groups);
     bool GroupListUser(Connection_T conn, const uint32_t &group_id, std::vector<UserInfo> &user_infos);
-    std::vector<uint32_t> GroupListUserId(Connection_T conn, const uint32_t &group_id);
+    void GroupListUserId(Connection_T conn, const uint32_t &group_id, std::vector<uint32_t> &res);
     int64_t GroupMessageInsert(Connection_T conn, const uint32_t &group_id, const uint32_t &user_id, const char* content, const time_t &recv_time);
     bool GroupMessageUpdate(Connection_T conn, const uint32_t &group_id, const uint32_t &user_id, const uint64_t &msg_id);
     int GroupMessagePull(Connection_T conn, const uint32_t &group_id, const uint32_t &user_id, std::vector<GroupMessage> &messages);
