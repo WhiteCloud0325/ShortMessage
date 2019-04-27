@@ -77,12 +77,15 @@ void UserManager::GroupAddUser(ControlHead * control_head, Connection_T conn) {
     char* pos = control_head->content;
     uint32_t group_id =  ntohl(*(uint32_t*)pos);
     pos += 4;
-    int num = *(int*)pos;
+    uint32_t num = ntohl(*(uint32_t*)pos);
     pos += 4;
     std::vector<uint32_t> members;
-    for (int i = 0; i < num; ++i) {
+    for (uint32_t i = 0; i < num; ++i) {
         members.push_back(ntohl(*(uint32_t*)pos));
         pos += 4;
+    }
+    if (members.empty()) {
+        return;
     }
     bool res = database_->GroupAddMembers(conn, group_id, members);
     MessageItem message;
@@ -149,7 +152,7 @@ void UserManager::GroupDeleteMember(ControlHead * control_head, Connection_T con
     char *pos = control_head->content;
     uint32_t group_id = ntohl(*(uint32_t*)pos);
     pos += 4;
-    uint32_t num = *(uint32_t*)pos;
+    uint32_t num = ntohl(*(uint32_t*)pos);
     if (num == 0) {
         return;
     }
