@@ -169,12 +169,13 @@ void Controller::Execute() {
                     message_manager_.ProcessReceipt(control_head, conn);
                     break;
                 case GROUP_CREATE_REQUEST:
+                    user_manager_.GroupCreate(control_head, conn);
                     break;
                 case GROUP_ADD_MEMBER_REQUEST:
+                    user_manager_.GroupAddUser(control_head, conn);
                     break;
                 case GROUP_DELETE_MEMBER_REQUEST:
-                    break;
-                case GROUP_QUIT_REQUEST:
+                    user_manager_.GroupDeleteMember(control_head, conn);
                     break;
                 default:
                     break;

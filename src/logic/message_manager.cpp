@@ -103,9 +103,9 @@ void MessageManager::ProcessReceipt(ControlHead *control_head, Connection_T conn
 }
 
 void MessageManager::ProcessGroupMessage(ControlHead* control_head, Connection_T conn) {
-    uint32_t from_id = control_head->from_id;
-    uint32_t group_id = control_head->to_id;
-    uint16_t frame_id = control_head->frame_id;
+    uint32_t from_id = ntohl(control_head->from_id);
+    uint32_t group_id = ntohl(control_head->to_id);
+    uint16_t frame_id = ntohs(control_head->frame_id);
     char* pos = control_head->content;
     int res = database_->IsUserInGroup(conn, group_id, from_id);
     if (res != 1) {
@@ -113,34 +113,24 @@ void MessageManager::ProcessGroupMessage(ControlHead* control_head, Connection_T
     }
     time_t recv_time = time(NULL);
     int64_t msg_id = database_->GroupMessageInsert(conn, group_id, from_id, pos + 8, recv_time);
-    std::vector<uint32_t> members = database_->GroupListUserId(conn, group_id);
     MessageItem message;
     message.from_id = group_id;
     message.frame_id = frame_id;
+    message.to_id = group_id;
     message.type = GROUP_MESSAGE_REQUEST;
     message.retain = control_head->retain;
     *(int64_t*) pos = msg_id;
     message.content = std::string(control_head->content);
-    for(auto member: members) {
-        std::vector<SateParam> sates;
-        database_->GetSateCover(conn, member, sates);
-        if (sates.empty()) {
-            continue;
-        }
-        message.to_id = member;
-        std::string response = MessageEncode(message);
-        SendHelper::GetInstance()->SendMessage(member, response, sates, 5);
+    std::vector<int> beams;
+    database_->GroupGetSateCover(conn, group_id, beams);
+    if (beams.empty()) {
+        return;
     }
+    std::string str = MessageEncode(message);
+    SendHelper::GetInstance()->SendGroupMessage(group_id, str, beams, 5);
 }
 
-void MessageManager::ProcessGroupMessageReceipt(ControlHead* control_head, Connection_T conn) {
-    uint32_t from_id = control_head->from_id;
-    uint32_t group_id = control_head->to_id;
-    uint32_t frame_id = control_head->frame_id;
-    char* pos = control_head->content;
-    uint64_t msg_id = *(uint64_t*) pos;
-    database_->GroupMessageUpdate(conn, group_id, from_id, msg_id);
-}
+
 
 void MessageManager::ProcessGroupMessagePull(ControlHead* control_head, Connection_T conn) {
     
