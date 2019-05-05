@@ -113,6 +113,7 @@ void MessageManager::ProcessGroupMessage(ControlHead* control_head, Connection_T
     }
     time_t recv_time = time(NULL);
     int64_t msg_id = database_->GroupMessageInsert(conn, group_id, from_id, pos + 8, recv_time);
+
     MessageItem message;
     message.from_id = group_id;
     message.frame_id = frame_id;
@@ -128,6 +129,9 @@ void MessageManager::ProcessGroupMessage(ControlHead* control_head, Connection_T
     }
     std::string str = MessageEncode(message);
     SendHelper::GetInstance()->SendGroupMessage(group_id, str, beams, 5);
+    const boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
+    const boost::posix_time::time_duration td = now.time_of_day();
+    LOG_DEBUG("message from_id=%ld||group_id=%ld||frame_id=%d||time=%lldms", from_id,group_id, frame_id, td.total_milliseconds());
 }
 
 

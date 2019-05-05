@@ -177,6 +177,9 @@ void Controller::Execute() {
                 case GROUP_DELETE_MEMBER_REQUEST:
                     user_manager_.GroupDeleteMember(control_head, conn);
                     break;
+                case GROUP_MESSAGE_REQUEST:
+                    message_manager_.ProcessGroupMessage(control_head, conn);
+                    break;
                 default:
                     break;
             }
