@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.6)
 project (AccessService)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
-set(CMAKE_CXX_FLAGS "-pipe -g -std=c++0x -W -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-reorder -fPIC")
+set(CMAKE_CXX_FLAGS "-pipe -ggdb -std=c++0x -W -Wall -Wno-unused-parameter -Wno-deprecated-declarations -Wno-reorder -fPIC")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0")
 #set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 set(CMAKE_BUILD_TYPE "RelWithDebInfo")

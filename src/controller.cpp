@@ -168,6 +168,6 @@ void Controller::ProcessMessage() {
         SendHelper::GetInstance()->SendMessage(message);
         const boost::posix_time::ptime  now = boost::posix_time::microsec_clock::local_time();
         const boost::posix_time::time_duration td = now.time_of_day();
-       // LOG_DEBUG("frame_id=%d||time=%lldms", frame_id, td.total_milliseconds());
+        LOG_DEBUG("frame_id=%d||time=%lldms", frame_id, td.total_milliseconds());
     }
 }
