@@ -89,3 +89,6 @@ target_link_libraries(server
     dl
     sqlite3
     )
+
+install(TARGETS server DESTINATION ${PROJECT_DIR}/output)
+install(DIRECTORY ${PROJECT_DIR}/conf DESTINATION ${PROJECT_DIR}/output)
