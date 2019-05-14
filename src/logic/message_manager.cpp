@@ -113,15 +113,17 @@ void MessageManager::ProcessGroupMessage(ControlHead* control_head, Connection_T
     }
     time_t recv_time = time(NULL);
     int64_t msg_id = database_->GroupMessageInsert(conn, group_id, from_id, pos + 8, recv_time);
-
+    if (msg_id == -1) {
+        return;
+    }
     MessageItem message;
-    message.from_id = group_id;
+    message.from_id = from_id;
     message.frame_id = frame_id;
     message.to_id = group_id;
     message.type = GROUP_MESSAGE_REQUEST;
     message.retain = control_head->retain;
     *(int64_t*) pos = msg_id;
-    message.content = std::string(control_head->content);
+    message.content = std::string(control_head->content, 8 + strlen(pos + 8));
     std::vector<int> beams;
     database_->GroupGetSateCover(conn, group_id, beams);
     if (beams.empty()) {

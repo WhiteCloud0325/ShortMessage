@@ -43,7 +43,7 @@ void UserManager::GroupCreate(ControlHead * control_head, Connection_T conn) {
     MessageItem message;
     message.to_id = user_id;
     message.from_id = 0;
-    message.frame_id = control_head->frame_id;
+    message.frame_id = ntohs(control_head->frame_id);
     message.type = 0x31;
     message.retain = control_head->retain;
     message.content = std::string((char*)&group_id, 4);
@@ -89,7 +89,7 @@ void UserManager::GroupAddUser(ControlHead * control_head, Connection_T conn) {
     }
     bool res = database_->GroupAddMembers(conn, group_id, members);
     MessageItem message;
-    message.to_id = user_id;
+    message.to_id = group_id;
     message.from_id = 0;
     message.frame_id = frame_id;
     message.type = 0x33;
@@ -163,13 +163,13 @@ void UserManager::GroupDeleteMember(ControlHead * control_head, Connection_T con
         pos += 4;
     }
     
-    bool res = database_->GroupDeleteMembers(conn, group_id, members);
-    if (!res) {
-        return;
-    }
     std::vector<int> beams;
     database_->GroupGetSateCover(conn, group_id, beams);
     if (beams.empty()) {
+        return;
+    }
+    bool res = database_->GroupDeleteMembers(conn, group_id, members);
+    if (!res) {
         return;
     }
     MessageItem message;

@@ -70,7 +70,7 @@ std::string MessageEncode(const MessageItem &message) {
     pos +=2;
     *(uint8_t*)pos++ = message.type;
     *(uint8_t*)pos++ = message.retain;
-    strcpy(pos, message.content.c_str());
+    memcpy(pos, message.content.c_str(), message.content.size());
     pos += message.content.size() + 1;
     std::string res(buf, pos - buf);
     return res;
