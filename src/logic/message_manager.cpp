@@ -141,3 +141,54 @@ void MessageManager::ProcessGroupMessage(ControlHead* control_head, Connection_T
 void MessageManager::ProcessGroupMessagePull(ControlHead* control_head, Connection_T conn) {
     
 }
+
+void MessageManager::ProcessInquireMessage(ControlHead* control_head, Connection_T conn) {
+    uint32_t from_id = ntohl(control_head->from_id);
+    uint16_t frame_id = ntohs(control_head->frame_id);
+    ++frame_id;
+    char* pos = control_head->content;
+    uint8_t num = *(uint8_t*) pos;
+    ++pos;
+    time_t start_time = ntohl(*(uint32_t*)pos);
+    pos += 4;
+    time_t end_time = ntohl(*(uint32_t*)pos);
+    pos += 4;
+    std::vector<InquireMessageItem> messages;
+    bool res = database_->InquireMessage(conn, from_id, start_time, end_time, num, messages);
+    if (!res) {
+        Connection_close(conn);
+        conn = NULL;
+        return;
+    }
+    int total = messages.size();
+
+    char* str = new char[13 + total *110];
+    memset(str, 0, 13 + total * 110);
+    pos = str;
+    *(uint32_t*)pos = htonl(from_id);
+    pos += 4;
+    *(uint32_t*)pos = 0;
+    pos += 4;
+    *(uint16_t*)pos = htons(frame_id);
+    pos += 2;
+    *(uint8_t*)pos++ = 0x70;
+    *(uint8_t*)pos++ = 0;
+    *(uint8_t*)pos++ = total & 0xff;
+    for (int i = 0; i < total; ++i) {
+        *(uint32_t*)pos = htonl(messages[i].from_id);
+        pos += 4;
+        *(uint32_t*)pos = htonl(messages[i].timestamp);
+        pos += 4;
+        *(uint8_t*)pos++ = messages[i].content.size();
+        memcpy(pos, messages[i].content.c_str(), messages[i].content.size());
+        pos += messages[i].content.size();
+    }
+    std::string send_message(str, pos - str);
+    delete str;
+    std::vector<SateParam> sates_user;
+    database_->GetSateCover(conn, from_id, sates_user);
+    if (!sates_user.empty()) {
+        SendHelper::GetInstance()->SendMessage(from_id, send_message, sates_user, 5);
+     //   LOG_DEBUG("Message ProcessCompleteMessage SendReceipt: from_id=%ld", from_id);
+    }
+}

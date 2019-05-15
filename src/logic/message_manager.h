@@ -15,6 +15,7 @@ public:
     void ProcessGroupMessage(ControlHead * control_head, Connection_T conn);
     void ProcessGroupMessageReceipt(ControlHead * control_head, Connection_T conn);
     void ProcessGroupMessagePull(ControlHead* control_head, Connection_T conn);
+    void ProcessInquireMessage(ControlHead* control_head, Connection_T conn);
 };
 
 #endif /* define message_manager_h_ */

@@ -913,3 +913,35 @@ int  Database::IsUserInGroup(Connection_T conn, const uint32_t &group_id, const 
     }
     END_TRY;
  }
+
+ /**
+  *  function: InquireMessage
+  *  desc:
+  *  params:
+  *     @conn,
+  *     @user_id,
+  *     @
+  */
+bool Database::InquireMessage(Connection_T conn, const uint32_t &user_id, const time_t & start_time, const time_t & end_time, const uint8_t &num, std::vector<InquireMessageItem> &messages) {
+    char sql[1024] = {0};
+    tm tm_start_time, tm_end_time;
+    gmtime_r(&start_time, &tm_start_time);
+    gmtime_r(&end_time, &tm_end_time);
+    char start_stamp[64] = {0};
+    char end_stamp[64] = {0};
+    strftime(start_stamp, sizeof(start_stamp), "%Y-%m-%d %H:%M:%S", &tm_start_time);
+    strftime(end_stamp, sizeof(end_stamp), "%Y-%m-%d %H:%M:%S", &tm_end_time);
+    snprintf(sql, 1024, "SELECT from_user, send_time, text FROM message_store WHERE to_user = %d AND send_time >= '%s' and send_time <= '%s' LIMIT %d", user_id, start_stamp, end_stamp, (int)num);
+    TRY{
+        ResultSet_T r = Connection_executeQuery(conn, sql);
+        while(ResultSet_next(r)) {
+            messages.emplace_back(ResultSet_getInt(r, 1), ResultSet_getTimestamp(r, 2), ResultSet_getString(r, 3));
+        }
+    }
+    CATCH(SQLException) {
+        LOG_ERROR("Database InquireMessage Failed: user_id=%d||start_time=%d||end_time=%d||SQLException=%s", user_id, start_time, end_time, Connection_getLastError(conn));
+        return false;
+    }
+    END_TRY;
+    return true;
+}

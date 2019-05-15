@@ -164,6 +164,14 @@ struct MessageItem {
     std::string content;
 };
 
+struct InquireMessageItem {
+    InquireMessageItem(){}
+    InquireMessageItem(uint32_t from_id_, uint32_t timestamp_, const char * content_):from_id(from_id_), timestamp(timestamp_), content(content_){}
+    uint32_t from_id;
+    uint32_t timestamp;
+    std::string content;
+};
+
 struct UserInfo {
     UserInfo(){}
     UserInfo(uint32_t user_id_, std::string user_name_): user_id(user_id_), user_name(user_name_) {}

@@ -164,6 +164,7 @@ void Controller::Execute() {
                     message_manager_.ProcessCompleteMessage(control_head, conn);
                     break;
                 case INQUIRE_MESSAGE_REQUEST:
+                    message_manager_.ProcessInquireMessage(control_head, conn);
                     break;
                 case RECEIPTE:
                     message_manager_.ProcessReceipt(control_head, conn);
